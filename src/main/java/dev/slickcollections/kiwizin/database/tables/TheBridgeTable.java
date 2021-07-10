@@ -45,8 +45,8 @@ public class TheBridgeTable extends DataTable {
     defaultValues.put("2v2points", new DataContainer(0L));
     defaultValues.put("2v2wins", new DataContainer(0L));
     if (!(Database.getInstance() instanceof MongoDBDatabase)) {
-      for (String stats : new String[] {"kills", "deaths", "points", "wins", "games"}) {
-        defaultValues.put("monthly" + stats, new DataContainer(0L));
+      for (String stat : new String[] {"kills", "deaths", "points", "wins", "games"}) {
+        defaultValues.put("monthly" + stat, new DataContainer(0L));
       }
       defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR)));
     }
