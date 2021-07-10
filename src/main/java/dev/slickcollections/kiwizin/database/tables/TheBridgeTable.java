@@ -2,19 +2,21 @@ package dev.slickcollections.kiwizin.database.tables;
 
 import dev.slickcollections.kiwizin.database.Database;
 import dev.slickcollections.kiwizin.database.HikariDatabase;
+import dev.slickcollections.kiwizin.database.MongoDBDatabase;
 import dev.slickcollections.kiwizin.database.MySQLDatabase;
 import dev.slickcollections.kiwizin.database.data.DataContainer;
 import dev.slickcollections.kiwizin.database.data.DataTable;
 import dev.slickcollections.kiwizin.database.data.interfaces.DataTableInfo;
 
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @DataTableInfo(name = "kCoreTheBridge",
-    create = "CREATE TABLE IF NOT EXISTS `kCoreTheBridge` (`name` VARCHAR(32), `1v1kills` LONG, `1v1deaths` LONG, `1v1games` LONG, `1v1points` LONG, `1v1wins` LONG, `2v2kills` LONG, `2v2deaths` LONG, `2v2games` LONG, `2v2points` LONG, `2v2wins` LONG, `coins` DOUBLE, `winstreak` LONG, `laststreak` LONG, `lastmap` LONG, `hotbar` TEXT, `cosmetics` TEXT, `selected` TEXT, PRIMARY KEY(`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;",
+    create = "CREATE TABLE IF NOT EXISTS `kCoreTheBridge` (`name` VARCHAR(32), `1v1kills` LONG, `1v1deaths` LONG, `1v1games` LONG, `1v1points` LONG, `1v1wins` LONG, `2v2kills` LONG, `2v2deaths` LONG, `2v2games` LONG, `2v2points` LONG, `2v2wins` LONG, `monthlykills` LONG, `monthlydeaths` LONG, `monthlyassists` LONG, `monthlywins` LONG, `monthlygames` LONG, `month` TEXT, `coins` DOUBLE, `winstreak` LONG, `laststreak` LONG, `lastmap` LONG, `hotbar` TEXT, `cosmetics` TEXT, `selected` TEXT, PRIMARY KEY(`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;",
     select = "SELECT * FROM `kCoreTheBridge` WHERE LOWER(`name`) = ?",
-    insert = "INSERT INTO `kCoreTheBridge` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    update = "UPDATE `kCoreTheBridge` SET `1v1kills` = ?, `1v1deaths` = ?, `1v1games` = ?, `1v1points` = ?, `1v1wins` = ?, `2v2kills` = ?, `2v2deaths` = ?, `2v2games` = ?, `2v2points` = ?, `2v2wins` = ?, `coins` = ?, `winstreak` = ?, `laststreak` = ?, `lastmap` = ?, `hotbar` = ?, `cosmetics` = ?, `selected` = ? WHERE LOWER(`name`) = ?")
+    insert = "INSERT INTO `kCoreTheBridge` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    update = "UPDATE `kCoreTheBridge` SET `1v1kills` = ?, `1v1deaths` = ?, `1v1games` = ?, `1v1points` = ?, `1v1wins` = ?, `2v2kills` = ?, `2v2deaths` = ?, `2v2games` = ?, `2v2points` = ?, `2v2wins` = ?, `monthlykills` = ?, `montlhydeaths` = ?, `monthlyassists` = ?, `monthlywins` = ?, `monthlygames` = ?, `month` = ?, `coins` = ?, `winstreak` = ?, `laststreak` = ?, `lastmap` = ?, `hotbar` = ?, `cosmetics` = ?, `selected` = ? WHERE LOWER(`name`) = ?")
 public class TheBridgeTable extends DataTable {
 
   @Override
@@ -42,6 +44,12 @@ public class TheBridgeTable extends DataTable {
     defaultValues.put("2v2games", new DataContainer(0L));
     defaultValues.put("2v2points", new DataContainer(0L));
     defaultValues.put("2v2wins", new DataContainer(0L));
+    if (!(Database.getInstance() instanceof MongoDBDatabase)) {
+      for (String stats : new String[] {"kills", "deaths", "points", "wins", "games"}) {
+        defaultValues.put("monthly" + stats, new DataContainer(0L));
+      }
+      defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR)));
+    }
     defaultValues.put("coins", new DataContainer(0.0D));
     defaultValues.put("winstreak", new DataContainer(0L));
     defaultValues.put("laststreak", new DataContainer(System.currentTimeMillis()));

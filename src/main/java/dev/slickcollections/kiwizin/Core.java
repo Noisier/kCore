@@ -50,6 +50,9 @@ import java.util.logging.Level;
 public class Core extends KPlugin {
 
   /**
+  *
+  * Copyright (c) 2020-2021 SliceCollections
+  *
   * Uma edição de um plugin chamado mCore.
   *
   * Criador: https://github.com/maxteer
