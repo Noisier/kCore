@@ -85,7 +85,7 @@ public class FakeCommand extends Commands {
       }
 
       enabled.clear();
-      FakeManager.applyFake(player, fakeName, roleName, skin.equalsIgnoreCase("steve") ? STEVE : skin.equalsIgnoreCase("you") ? Manager.getSkin(player.getName(), "signature") : ALEX);
+      FakeManager.applyFake(player, fakeName, roleName, skin.equalsIgnoreCase("steve") ? STEVE : skin.equalsIgnoreCase("you") ? (Manager.getSkin(player.getName(), "value") + ":" + Manager.getSkin(player.getName(), "signature")) : ALEX);
     } else if (label.equalsIgnoreCase("faker")) {
       if (profile != null && profile.playingGame()) {
         player.sendMessage("§cVocê não pode utilizar este comando no momento.");
