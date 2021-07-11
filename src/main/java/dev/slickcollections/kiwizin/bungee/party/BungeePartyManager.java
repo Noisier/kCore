@@ -19,7 +19,8 @@ public class BungeePartyManager {
     BungeeParty bp = new BungeeParty(leader.getName(), BungeePartySizer.getPartySize(leader));
     BUNGEE_PARTIES.add(bp);
     if (CLEAN_PARTIES == null) {
-      CLEAN_PARTIES = ProxyServer.getInstance().getScheduler().schedule(Bungee.getInstance(), () -> ImmutableList.copyOf(BUNGEE_PARTIES).forEach(BungeeParty::update), 0L, 2L, TimeUnit.SECONDS);
+      CLEAN_PARTIES = ProxyServer.getInstance().getScheduler().schedule(Bungee.getInstance(),
+              () -> ImmutableList.copyOf(BUNGEE_PARTIES).forEach(BungeeParty::update), 0L, 2L, TimeUnit.SECONDS);
     }
 
     return bp;

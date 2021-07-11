@@ -18,9 +18,9 @@ public class CoinsCommand extends Commands {
             Profile profile = Profile.getProfile(player.getName());
             player.sendMessage("\n§eSeus coins:");
 
-            for (String table : new String[] {"kCoreBed Wars", "kCoreMurder", "kCoreThe Bridge", "kCoreSky Wars"}) {
-                String name = table.replace("kCore", "");
-                player.sendMessage(" §e" + name + "§f: " + StringUtils.formatNumber(profile.getCoins(table.replace(" ", ""))));
+            for (String name : new String[] {"Bed Wars", "Murder", "The Bridge", "Sky Wars"}) {
+                player.sendMessage(" §8▪ §f" + name + " &7" + StringUtils
+                        .formatNumber(profile.getCoins("kCore" + name.replace(" ", ""))));
             }
 
             player.sendMessage("\n");
