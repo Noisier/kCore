@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 public abstract class Achievement {
 
-  private String id;
-  private String name;
+  protected String id;
+  protected String name;
 
   public Achievement(String id, String name) {
     this.id = id;

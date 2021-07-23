@@ -14,7 +14,8 @@ import dev.slickcollections.kiwizin.player.Profile;
 
 public class TitleController {
 
-  private static final FieldAccessor<Integer> ENTITY_ID = Accessors.getField(MinecraftReflection.getEntityClass(), "entityCount", int.class);
+  private static final FieldAccessor<Integer> ENTITY_ID = Accessors.getField(MinecraftReflection
+          .getEntityClass(), "entityCount", int.class);
 
   private Player owner;
   private WrappedDataWatcher watcher;

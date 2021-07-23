@@ -113,8 +113,8 @@ public class PlayerPathfinder {
     return new PathEntity(arrayOfPathPoint);
   }
 
-  private static FieldAccessor<Object> E = Accessors.getField(PathPoint.class, "e");
-  private static FieldAccessor<Object> F = Accessors.getField(PathPoint.class, "f");
-  private static FieldAccessor<Object> G = Accessors.getField(PathPoint.class, "g");
-  private static FieldAccessor<Object> H = Accessors.getField(PathPoint.class, "h");
+  private static final FieldAccessor<Object> E = Accessors.getField(PathPoint.class, "e");
+  private static final FieldAccessor<Object> F = Accessors.getField(PathPoint.class, "f");
+  private static final FieldAccessor<Object> G = Accessors.getField(PathPoint.class, "g");
+  private static final FieldAccessor<Object> H = Accessors.getField(PathPoint.class, "h");
 }

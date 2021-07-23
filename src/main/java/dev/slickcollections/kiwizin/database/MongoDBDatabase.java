@@ -184,15 +184,6 @@ public class MongoDBDatabase extends Database {
     List<String> includes = new ArrayList<>();
     for (DataTable table : DataTable.listTables()) {
       Map<String, DataContainer> containerMap = table.getDefaultValues();
-      if (table.getInfo().name().contains("SkyWars") || table.getInfo().name().contains("BedWars") || table.getInfo().name().contains("TheBridge")) {
-        String assists = table.getInfo().name().contains("SkyWars") || table.getInfo().name().contains("BedWars") ? "assists" : "";
-        String beds = table.getInfo().name().contains("BedWars") ? "beds" : "points";
-        for (String stats : new String[] {"kills", "deaths", assists, beds, "wins", "games"}) {
-          containerMap.put("monthly" + stats, new DataContainer(0L));
-        }
-        containerMap.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR)));
-      }
-
       String prefix = table.getInfo().name().equalsIgnoreCase("kcoreprofile") ? "" : table.getInfo().name() + ".";
       containerMap.keySet().forEach(key -> includes.add(prefix + key));
       tableMap.put(table.getInfo().name(), containerMap);

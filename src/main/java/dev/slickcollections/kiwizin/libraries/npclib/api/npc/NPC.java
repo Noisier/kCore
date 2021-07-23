@@ -57,7 +57,8 @@ public interface NPC {
   UUID getUUID();
 
   String getName();
-                             // boolean
+
+  // boolean
   public static final String PROTECTED_KEY = "protected",
     // boolean
     TAB_LIST_KEY = "hide-from-tablist",

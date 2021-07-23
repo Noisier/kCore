@@ -37,6 +37,6 @@ public class FakeListCommand extends Commands {
       sb.append("§cNão há nenhum usuário utilizando um nickname falso.");
     }
 
-    player.sendMessage(TextComponent.fromLegacyText(" \n§eLista de nicknames falsos:\n \n" + sb.toString() + "\n "));
+    player.sendMessage(TextComponent.fromLegacyText(" \n§eLista de nicknames falsos:\n \n" + sb + "\n "));
   }
 }

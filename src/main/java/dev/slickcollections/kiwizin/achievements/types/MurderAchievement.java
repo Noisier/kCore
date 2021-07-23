@@ -9,10 +9,10 @@ import dev.slickcollections.kiwizin.utils.StringUtils;
 
 public class MurderAchievement extends Achievement {
 
-  private MurderReward reward;
-  private String icon;
-  private String[] stats;
-  private int reach;
+  protected MurderReward reward;
+  protected String icon;
+  protected String[] stats;
+  protected int reach;
 
   public MurderAchievement(MurderReward reward, String id, String name, String desc, int reach, String... stats) {
     super("mm-" + id, name);

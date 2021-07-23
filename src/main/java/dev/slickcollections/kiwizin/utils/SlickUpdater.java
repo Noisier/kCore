@@ -81,8 +81,7 @@ public class SlickUpdater {
   }
 
   public static SlickUpdater UPDATER;
-
-
+  
   public static String getVersion(int resourceId) {
     try {
       HttpsURLConnection connection = (HttpsURLConnection) new URL("https://www.slickcollections.com.br/api/v1/plugin/" + resourceId).openConnection();

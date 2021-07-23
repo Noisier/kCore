@@ -35,6 +35,10 @@ public class NMS {
     return BRIDGE.createItem(location, item, line);
   }
 
+  public static void clearPathfinderGoal(Object entity) {
+    BRIDGE.clearPathfinderGoal(entity);
+  }
+
   public static void playChestAction(Location location, boolean open) {
     BRIDGE.playChestAction(location, open);
   }

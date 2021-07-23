@@ -63,9 +63,6 @@ public class KLogger extends PluginLogger {
     return new KLogger(this, module + ": ");
   }
 
-  /**
-   * @author Maxter
-   */
   private enum MLevel {
     INFO("§a"),
     WARNING("§e"),

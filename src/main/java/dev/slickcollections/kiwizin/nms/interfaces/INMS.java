@@ -75,5 +75,7 @@ public interface INMS {
 
   void sendTabHeaderFooter(Player player, String header, String footer);
 
+  void clearPathfinderGoal(Object entity);
+
   void refreshPlayer(Player player);
 }

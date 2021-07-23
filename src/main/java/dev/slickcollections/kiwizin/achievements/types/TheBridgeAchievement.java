@@ -9,10 +9,10 @@ import dev.slickcollections.kiwizin.utils.StringUtils;
 
 public class TheBridgeAchievement extends Achievement {
 
-  private TheBridgeReward reward;
-  private String icon;
-  private String[] stats;
-  private int reach;
+  protected TheBridgeReward reward;
+  protected String icon;
+  protected String[] stats;
+  protected int reach;
 
   public TheBridgeAchievement(TheBridgeReward reward, String id, String name, String desc, int reach, String... stats) {
     super("tb-" + id, name);

@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import dev.slickcollections.kiwizin.libraries.holograms.api.Hologram;
 import dev.slickcollections.kiwizin.libraries.holograms.api.HologramLine;
+import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
 import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPCAnimation;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.EntityControllers;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.ai.NPCHolder;
@@ -44,10 +45,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.ItemStack;
 import dev.slickcollections.kiwizin.Core;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class NMS1_8R3 implements INMS {
@@ -55,10 +53,13 @@ public class NMS1_8R3 implements INMS {
   @SuppressWarnings("rawtypes")
   private final FieldAccessor<Set> SET_TRACKERS;
   private final FieldAccessor<Map> CLASS_TO_ID, CLASS_TO_NAME;
+  private final FieldAccessor<List> PATHFINDERGOAL_B, PATHFINDERGOAL_C;
 
   public NMS1_8R3() {
     CLASS_TO_ID = Accessors.getField(EntityTypes.class, "f", Map.class);
     CLASS_TO_NAME = Accessors.getField(EntityTypes.class, "d", Map.class);
+    PATHFINDERGOAL_B = Accessors.getField(PathfinderGoalSelector.class, 0, List.class);
+    PATHFINDERGOAL_C = Accessors.getField(PathfinderGoalSelector.class, 1, List.class);
 
     CLASS_TO_ID.get(null).put(EntityStand.class, 30);
     CLASS_TO_NAME.get(null).put(EntityStand.class, "kCore-EntityStand");
@@ -76,6 +77,24 @@ public class NMS1_8R3 implements INMS {
     }
 
     EntityControllers.registerEntityController(EntityType.PLAYER, HumanController.class);
+  }
+
+  public String getSoundEffect(NPC npc, String snd, String meta) {
+    return npc == null || !npc.data().has(meta) ? snd : npc.data().get(meta, snd == null ? "" : snd);
+  }
+
+  @Override
+  public void clearPathfinderGoal(Object entity) {
+    if (entity instanceof Entity) {
+      entity = ((CraftEntity) entity).getHandle();
+    }
+
+    net.minecraft.server.v1_8_R3.Entity handle = (net.minecraft.server.v1_8_R3.Entity) entity;
+    if (handle instanceof EntityInsentient) {
+      EntityInsentient entityInsentient = (EntityInsentient) handle;
+      PATHFINDERGOAL_B.get(entityInsentient.goalSelector).clear();
+      PATHFINDERGOAL_C.get(entityInsentient.targetSelector).clear();
+    }
   }
 
   @Override

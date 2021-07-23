@@ -9,9 +9,9 @@ import java.net.InetSocketAddress;
 
 public class Server implements LoadBalancerObject, NumberConnection {
 
-  private ServerPing serverPing;
-  private String name;
-  private int max;
+  protected ServerPing serverPing;
+  protected String name;
+  protected int max;
 
   public Server(String ip, String name, int max) {
     this.serverPing = new ServerPing(new InetSocketAddress(ip.split(":")[0], Integer.parseInt(ip.split(":")[1])));

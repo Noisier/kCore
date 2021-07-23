@@ -29,9 +29,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * @author Maxter
- */
 public class Profile {
 
     private String name;
@@ -261,17 +258,19 @@ public class Profile {
 
     public void addStats(String table, long amount, String... keys) {
         for (String key : keys) {
-            if (key.startsWith("monthly")) {
-                String month = this.getDataContainer(table, "month").getAsString();
-                String current = (Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR);
-                if (!month.equals(current)) {
-                    Map<String, DataContainer> containerMap = this.tableMap.get(table);
-                    containerMap.keySet().forEach(k -> {
-                        if (k.startsWith("monthly")) {
-                            containerMap.get(k).set(0L);
-                        }
-                    });
-                    containerMap.get("month").set(current);
+            if (!table.toLowerCase().contains("murder")) {
+                if (key.startsWith("monthly")) {
+                    String month = this.getDataContainer(table, "month").getAsString();
+                    String current = (Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR);
+                    if (!month.equals(current)) {
+                        Map<String, DataContainer> containerMap = this.tableMap.get(table);
+                        containerMap.keySet().forEach(k -> {
+                            if (k.startsWith("monthly")) {
+                                containerMap.get(k).set(0L);
+                            }
+                        });
+                        containerMap.get("month").set(current);
+                    }
                 }
             }
 

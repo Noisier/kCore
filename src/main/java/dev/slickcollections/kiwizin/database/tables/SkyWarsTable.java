@@ -53,13 +53,12 @@ public class SkyWarsTable extends DataTable {
     defaultValues.put("rankedgames", new DataContainer(0L));
     defaultValues.put("rankedwins", new DataContainer(0L));
     defaultValues.put("rankedpoints", new DataContainer(0L));
-    if (Database.getInstance() instanceof MySQLDatabase || Database.getInstance() instanceof HikariDatabase) {
-      String assists = "assists";
-      for (String stats : new String[] {"kills", "deaths", "points", assists, "wins", "games"}) {
-        defaultValues.put("monthly" + stats, new DataContainer(0L));
-      }
-      defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" + Calendar.getInstance().get(Calendar.YEAR)));
+    for (String key : new String[] {"kills", "deaths", "points",
+            "assists", "wins", "games"}) {
+      defaultValues.put("monthly" + key, new DataContainer(0L));
     }
+    defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" +
+            Calendar.getInstance().get(Calendar.YEAR)));
     defaultValues.put("coins", new DataContainer(0L));
     defaultValues.put("lastmap", new DataContainer(0L));
     defaultValues.put("cosmetics", new DataContainer("{}"));

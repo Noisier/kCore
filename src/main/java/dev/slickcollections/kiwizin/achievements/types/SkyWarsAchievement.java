@@ -9,10 +9,10 @@ import dev.slickcollections.kiwizin.utils.StringUtils;
 
 public class SkyWarsAchievement extends Achievement {
 
-  private SkyWarsReward reward;
-  private String icon;
-  private String[] stats;
-  private int reach;
+  protected SkyWarsReward reward;
+  protected String icon;
+  protected String[] stats;
+  protected int reach;
 
   public SkyWarsAchievement(SkyWarsReward reward, String id, String name, String desc, int reach, String... stats) {
     super("sw-" + id, name);

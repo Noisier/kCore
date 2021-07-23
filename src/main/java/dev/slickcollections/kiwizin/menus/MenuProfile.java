@@ -61,7 +61,8 @@ public class MenuProfile extends PlayerMenu {
     }
   }
 
-  private static final SimpleDateFormat SDF = new SimpleDateFormat("d 'de' MMMM. yyyy 'às' HH:mm", Locale.forLanguageTag("pt-BR"));
+  private static final SimpleDateFormat SDF = new SimpleDateFormat("d 'de' MMMM. yyyy 'às' HH:mm",
+          Locale.forLanguageTag("pt-BR"));
 
   public MenuProfile(Profile profile) {
     super(profile.getPlayer(), "Meu Perfil", 3);
