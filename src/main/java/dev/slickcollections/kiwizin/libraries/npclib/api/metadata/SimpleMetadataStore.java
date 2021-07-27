@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleMetadataStore implements MetadataStore {
-
+  
   private final Map<String, Object> metadata = new HashMap<>();
-
+  
   private void checkPrimitive(Object data) {
     Preconditions.checkNotNull(data, "data nao pode ser null!");
     boolean isPrimitive = data instanceof Boolean || data instanceof String || data instanceof Number;
@@ -16,13 +16,13 @@ public class SimpleMetadataStore implements MetadataStore {
       throw new IllegalArgumentException("Data tem que ser primitiva!");
     }
   }
-
+  
   @SuppressWarnings("unchecked")
   @Override
   public <T> T get(String key) {
     return (T) metadata.get(key);
   }
-
+  
   @Override
   public <T> T get(String key, T def) {
     T t = get(key);
@@ -30,21 +30,21 @@ public class SimpleMetadataStore implements MetadataStore {
       set(key, def);
       return def;
     }
-
+    
     return t;
   }
-
+  
   @Override
   public boolean has(String key) {
     Preconditions.checkNotNull(key, "Key nao pode ser null!");
     return metadata.containsKey(key);
   }
-
+  
   @Override
   public void remove(String key) {
     metadata.remove(key);
   }
-
+  
   @Override
   public void set(String key, Object data) {
     Preconditions.checkNotNull(key, "Key nao pode ser null!");

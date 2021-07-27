@@ -5,23 +5,23 @@ import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
 import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntityLiving;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import dev.slickcollections.kiwizin.player.Profile;
 import dev.slickcollections.kiwizin.reflection.Accessors;
 import dev.slickcollections.kiwizin.reflection.MinecraftReflection;
 import dev.slickcollections.kiwizin.reflection.acessors.FieldAccessor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import dev.slickcollections.kiwizin.player.Profile;
 
 public class TitleController {
-
+  
   private static final FieldAccessor<Integer> ENTITY_ID = Accessors.getField(MinecraftReflection
-          .getEntityClass(), "entityCount", int.class);
-
+      .getEntityClass(), "entityCount", int.class);
+  
   private Player owner;
   private WrappedDataWatcher watcher;
   private boolean disabled = true;
-  private int entityId;
-
+  private final int entityId;
+  
   public TitleController(Player owner, String title) {
     this.owner = owner;
     this.watcher = new WrappedDataWatcher();
@@ -33,7 +33,7 @@ public class TitleController {
     this.entityId = ENTITY_ID.get(null);
     ENTITY_ID.set(null, this.entityId + 1);
   }
-
+  
   public void setName(String name) {
     if (this.watcher.getString(2).equals("disabled")) {
       this.watcher.setObject(2, name);
@@ -45,7 +45,7 @@ public class TitleController {
       });
       return;
     }
-
+    
     this.watcher.setObject(2, name);
     if (name.equals("disabled")) {
       Profile.listProfiles().forEach(profile -> {
@@ -56,11 +56,11 @@ public class TitleController {
       });
       return;
     }
-
+    
     WrapperPlayServerEntityMetadata metadata = new WrapperPlayServerEntityMetadata();
     metadata.setEntityId(this.entityId);
     metadata.setEntityMetadata(this.watcher.getWatchableObjects());
-
+    
     Profile.listProfiles().forEach(profile -> {
       Player player = profile.getPlayer();
       if (player != null && player.canSee(this.owner)) {
@@ -68,18 +68,18 @@ public class TitleController {
       }
     });
   }
-
+  
   public void destroy() {
     this.disable();
     this.owner = null;
     this.watcher = null;
   }
-
+  
   public void enable() {
     if (!this.disabled) {
       return;
     }
-
+    
     this.disabled = false;
     Profile.listProfiles().forEach(profile -> {
       Player player = profile.getPlayer();
@@ -88,12 +88,12 @@ public class TitleController {
       }
     });
   }
-
+  
   public void disable() {
     if (this.disabled) {
       return;
     }
-
+    
     Profile.listProfiles().forEach(profile -> {
       Player player = profile.getPlayer();
       if (player != null && player.canSee(this.owner)) {
@@ -102,12 +102,12 @@ public class TitleController {
     });
     this.disabled = true;
   }
-
+  
   void showToPlayer(Player player) {
     if (player.equals(this.owner)) {
       return;
     }
-
+    
     if (!this.disabled && !this.watcher.getString(2).equals("disabled")) {
       WrapperPlayServerSpawnEntityLiving spawn = new WrapperPlayServerSpawnEntityLiving();
       spawn.setType(EntityType.ARMOR_STAND);
@@ -116,29 +116,29 @@ public class TitleController {
       spawn.setX(this.owner.getLocation().getX());
       spawn.setY(this.owner.getLocation().getY());
       spawn.setZ(this.owner.getLocation().getZ());
-
+      
       WrapperPlayServerAttachEntity attach = new WrapperPlayServerAttachEntity();
       attach.setEntityId(this.entityId);
       attach.setVehicleId(this.owner.getEntityId());
-
+      
       spawn.sendPacket(player);
       attach.sendPacket(player);
     }
   }
-
+  
   void hideToPlayer(Player player) {
     if (player.equals(this.owner)) {
       return;
     }
-
+    
     if (!this.disabled) {
       WrapperPlayServerEntityDestroy destroy = new WrapperPlayServerEntityDestroy();
-      destroy.setEntities(new int[] {this.entityId});
-
+      destroy.setEntities(new int[]{this.entityId});
+      
       destroy.sendPacket(player);
     }
   }
-
+  
   public Player getOwner() {
     return this.owner;
   }

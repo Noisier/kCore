@@ -19,22 +19,22 @@ import java.util.logging.Level;
  * Escreve uma YAML config sem quebra de linhas.
  */
 public class KWriter {
-
-  private KLogger logger;
-  private File file;
-  private String header;
-  private Map<String, Object> keys = new LinkedHashMap<>();
-
+  
+  private final KLogger logger;
+  private final File file;
+  private final String header;
+  private final Map<String, Object> keys = new LinkedHashMap<>();
+  
   public KWriter(KLogger logger, File file) {
     this(logger, file, "");
   }
-
+  
   public KWriter(KLogger logger, File file, String header) {
     this.logger = logger;
     this.file = file;
     this.header = header;
   }
-
+  
   public void write() {
     try {
       Writer fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
@@ -44,11 +44,11 @@ public class KWriter {
       ex.printStackTrace();
     }
   }
-
+  
   @SuppressWarnings("unchecked")
   public void set(String path, YamlEntry entry) {
     String[] splitter = path.split("\\.");
-
+    
     Map<String, Object> currentMap = this.keys;
     for (int slot = 0; slot < splitter.length; slot++) {
       String p = splitter[slot];
@@ -64,7 +64,7 @@ public class KWriter {
       }
     }
   }
-
+  
   public String toSaveString() {
     StringBuilder join = new StringBuilder();
     if (!this.header.isEmpty()) {
@@ -74,14 +74,14 @@ public class KWriter {
         }
       }
     }
-
+    
     for (Entry<String, Object> entry : this.keys.entrySet()) {
       join.append(toSaveString(entry.getKey(), entry.getValue(), 0));
     }
-
+    
     return join.toString();
   }
-
+  
   @SuppressWarnings("unchecked")
   private String toSaveString(String key, Object object, int spaces) {
     StringBuilder join = new StringBuilder();
@@ -94,10 +94,10 @@ public class KWriter {
           }
         }
       }
-
+      
       object = ye.getValue();
     }
-
+    
     join.append(repeat(spaces)).append(key).append(":");
     if (object instanceof String) {
       join.append(" '").append(object.toString().replace("'", "''")).append("'\n");
@@ -113,7 +113,7 @@ public class KWriter {
       join.append("\n");
       for (Object obj : (List<?>) object) {
         if (obj instanceof Integer) {
-          join.append(repeat(spaces)).append("- ").append(obj.toString()).append("\n");
+          join.append(repeat(spaces)).append("- ").append(obj).append("\n");
         } else {
           join.append(repeat(spaces)).append("- '").append(obj.toString().replace("'", "''")).append("'\n");
         }
@@ -135,42 +135,41 @@ public class KWriter {
         this.logger.log(Level.SEVERE, "Erro ao ler a InputStream \"" + key + "\":", ex);
       }
     }
-
+    
     return join.toString();
   }
-
+  
   private String repeat(int spaces) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < spaces; i++) {
       sb.append(" ");
     }
-
+    
     return sb.toString();
   }
-
-  public static class YamlEntry {
-
-    private String annotation;
-    private Object value;
-
-    public YamlEntry(Object[] array) {
-      this.annotation = (String) array[0];
-      this.value = array[1];
-    }
-
-    public String getAnnotation() {
-      return annotation;
-    }
-
-    public Object getValue() {
-      return value;
-    }
-  }
-
-
+  
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface YamlEntryInfo {
     String annotation() default "";
+  }
+  
+  public static class YamlEntry {
+    
+    private final String annotation;
+    private final Object value;
+    
+    public YamlEntry(Object[] array) {
+      this.annotation = (String) array[0];
+      this.value = array[1];
+    }
+    
+    public String getAnnotation() {
+      return annotation;
+    }
+    
+    public Object getValue() {
+      return value;
+    }
   }
 }

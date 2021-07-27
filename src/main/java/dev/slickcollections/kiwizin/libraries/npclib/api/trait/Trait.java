@@ -5,20 +5,20 @@ public interface Trait {
   /**
    * chamado ao Rastreio ser adicionado.
    */
-  public void onAttach();
+  void onAttach();
   
   /**
    * chamado ao Rastreio ser removido.
    */
-  public void onRemove();
+  void onRemove();
   
   /**
    * chamado ao NPC ser spawnado.
    */
-  public void onSpawn();
+  void onSpawn();
   
   /**
    * chamado ao NPC ser despawnado.
    */
-  public void onDespawn();
+  void onDespawn();
 }

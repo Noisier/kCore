@@ -1,28 +1,27 @@
 package dev.slickcollections.kiwizin.libraries.npclib.api.event;
 
-import org.bukkit.event.HandlerList;
 import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
+import org.bukkit.event.HandlerList;
 
 public class NPCNeedsRespawnEvent extends NPCEvent {
-
-  private NPC npc;
-
+  
+  private static final HandlerList HANDLER_LIST = new HandlerList();
+  private final NPC npc;
+  
   public NPCNeedsRespawnEvent(NPC npc) {
     this.npc = npc;
   }
-
+  
+  public static HandlerList getHandlerList() {
+    return HANDLER_LIST;
+  }
+  
   public NPC getNPC() {
     return npc;
   }
-
+  
   @Override
   public HandlerList getHandlers() {
-    return HANDLER_LIST;
-  }
-
-  private static final HandlerList HANDLER_LIST = new HandlerList();
-
-  public static HandlerList getHandlerList() {
     return HANDLER_LIST;
   }
 }

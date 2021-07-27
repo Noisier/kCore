@@ -1,17 +1,17 @@
 package dev.slickcollections.kiwizin.cmd;
 
+import dev.slickcollections.kiwizin.Core;
 import dev.slickcollections.kiwizin.database.Database;
 import dev.slickcollections.kiwizin.utils.SlickUpdater;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import dev.slickcollections.kiwizin.Core;
 
 public class CoreCommand extends Commands {
-
+  
   public CoreCommand() {
     super("kcore", "kc");
   }
-
+  
   @Override
   public void perform(CommandSender sender, String label, String[] args) {
     if (sender instanceof Player) {
@@ -20,18 +20,18 @@ public class CoreCommand extends Commands {
         player.sendMessage("§6kCore §bv" + Core.getInstance().getDescription().getVersion() + " §7Criado por §6Kiwizin§7.");
         return;
       }
-
+      
       if (args.length == 0) {
         player.sendMessage(" \n§6/kc atualizar §f- §7Atualizar o kCore.\n§6/kc converter §f- §7Converter seu Banco de Dados.\n ");
         return;
       }
-
+      
       String action = args[0];
       if (action.equalsIgnoreCase("atualizar")) {
         if (SlickUpdater.UPDATER != null) {
           if (!SlickUpdater.UPDATER.canDownload) {
             player.sendMessage(
-              " \n§6§l[KCORE]\n \n§aA atualização já está baixada, ela será aplicada na próxima reinicialização do servidor. Caso deseje aplicá-la agora, utilize o comando /stop.\n ");
+                " \n§6§l[KCORE]\n \n§aA atualização já está baixada, ela será aplicada na próxima reinicialização do servidor. Caso deseje aplicá-la agora, utilize o comando /stop.\n ");
             return;
           }
           SlickUpdater.UPDATER.canDownload = false;

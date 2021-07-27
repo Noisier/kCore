@@ -5,16 +5,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Slime;
 
 public interface ISlime {
-
-  public void setPassengerOf(Entity entity);
-
-  public void setLocation(double x, double y, double z);
-
-  public boolean isDead();
-
-  public void killEntity();
-
-  public Slime getEntity();
-
-  public HologramLine getLine();
+  
+  void setPassengerOf(Entity entity);
+  
+  void setLocation(double x, double y, double z);
+  
+  boolean isDead();
+  
+  void killEntity();
+  
+  Slime getEntity();
+  
+  HologramLine getLine();
 }

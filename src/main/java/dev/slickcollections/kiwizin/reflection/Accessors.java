@@ -17,11 +17,11 @@ import java.util.Arrays;
  */
 @SuppressWarnings({"rawtypes"})
 public class Accessors {
-
+  
   private Accessors() {
     // Selando a classe.
   }
-
+  
   /**
    * Método utilizado para remover o {@link Modifier#FINAL} do field caso ele possua<br>
    * e setar o field para acessível caso ele não seja acessível.
@@ -32,12 +32,12 @@ public class Accessors {
     if (!field.isAccessible()) {
       field.setAccessible(true);
     }
-
+    
     if (field.getModifiers() != (field.getModifiers() & ~Modifier.FINAL)) {
       getField(Field.class, "modifiers").set(field, field.getModifiers() & ~Modifier.FINAL);
     }
   }
-
+  
   /**
    * Seta o valor de um field através um {@link FieldAccessor}
    *
@@ -48,7 +48,7 @@ public class Accessors {
   public static void setFieldValue(Field field, Object target, Object value) {
     new FieldAccessor<>(field, true).set(target, value);
   }
-
+  
   /**
    * Retorna o valor de um field através de um {@link FieldAccessor}
    *
@@ -59,35 +59,35 @@ public class Accessors {
   public static Object getFieldValue(Field field, Object target) {
     return new FieldAccessor<>(field, true).get(target);
   }
-
+  
   /**
    * Um encurtador sem tipo para {@link Accessors#getField(Class, int, Class)}
    */
   public static FieldAccessor<Object> getField(Class clazz, int index) {
     return getField(clazz, index, null);
   }
-
+  
   /**
    * Um encurtador sem tipo para {@link Accessors#getField(Class, String, Class)}
    */
   public static FieldAccessor<Object> getField(Class clazz, String fieldName) {
     return getField(clazz, fieldName, null);
   }
-
+  
   /**
    * Um encurtador sem nome correto para {@link Accessors#getField(Class, String, int, Class)}
    */
   public static <T> FieldAccessor<T> getField(Class clazz, int index, Class<T> fieldType) {
     return getField(clazz, null, index, fieldType);
   }
-
+  
   /**
    * Um encurtador com índice 0 para {@link Accessors#getField(Class, String, int, Class)}
    */
   public static <T> FieldAccessor<T> getField(Class clazz, String fieldName, Class<T> fieldType) {
     return getField(clazz, fieldName, 0, fieldType);
   }
-
+  
   /**
    * Método utilizado para pegar um {@link Field} por índice.
    *
@@ -104,7 +104,7 @@ public class Accessors {
         return new FieldAccessor<>(field, true);
       }
     }
-
+    
     String message = " with index " + indexCopy;
     if (fieldName != null) {
       message += " and name " + fieldName;
@@ -112,52 +112,52 @@ public class Accessors {
     if (fieldType != null) {
       message += " and type " + fieldType;
     }
-
+    
     throw new IllegalArgumentException("Cannot find field " + message);
   }
-
+  
   /**
    * Um encurtador sem parâmetros para {@link Accessors#getMethod(Class, String, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, String methodName) {
     return getMethod(clazz, null, methodName, (Class[]) null);
   }
-
+  
   /**
    * Um encurtador sem parâmetros {@link Accessors#getMethod(Class, int, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, int index) {
     return getMethod(clazz, null, index, (Class[]) null);
   }
-
+  
   /**
    * Um encurtador sem tipo de retorno para {@link Accessors#getMethod(Class, Class, String, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, String methodName, Class... parameters) {
     return getMethod(clazz, null, methodName, parameters);
   }
-
+  
   /**
    * Um encurtador sem tipo de retorno para {@link Accessors#getMethod(Class, Class, int, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, int index, Class... parameters) {
     return getMethod(clazz, null, index, parameters);
   }
-
+  
   /**
    * Um encurtador sem índice para {@link Accessors#getMethod(Class, int, Class, String, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, Class returnType, String methodName, Class... parameters) {
     return getMethod(clazz, 0, returnType, methodName, parameters);
   }
-
+  
   /**
    * Um encurtador sem nome correto para {@link Accessors#getMethod(Class, int, Class, String, Class...)}
    */
   public static MethodAccessor getMethod(Class clazz, Class returnType, int index, Class... parameters) {
     return getMethod(clazz, index, returnType, null, parameters);
   }
-
+  
   /**
    * Método utilizado para pegar um {@link Method} por índice.
    *
@@ -172,11 +172,11 @@ public class Accessors {
     int indexCopy = index;
     for (final Method method : clazz.getMethods()) {
       if ((methodName == null || method.getName().equals(methodName)) && (returnType == null || method.getReturnType().equals(returnType)) && (parameters == null || Arrays
-        .equals(method.getParameterTypes(), parameters)) && index-- == 0) {
+          .equals(method.getParameterTypes(), parameters)) && index-- == 0) {
         return new MethodAccessor(method, true);
       }
     }
-
+    
     String message = " with index " + indexCopy;
     if (methodName != null) {
       message += " and name " + methodName;
@@ -189,21 +189,21 @@ public class Accessors {
     }
     throw new IllegalArgumentException("Cannot find method " + message);
   }
-
+  
   /**
    * Um encurtador sem tipo de parâmetros para {@link Accessors#getConstructor(Class, int, Class...)}
    */
   public static <T> ConstructorAccessor<T> getConstructor(Class<T> clazz, int index) {
     return getConstructor(clazz, index, (Class[]) null);
   }
-
+  
   /**
    * Um encurtador com índice 0 para {@link Accessors#getConstructor(Class, int, Class...)}
    */
   public static <T> ConstructorAccessor<T> getConstructor(Class<T> clazz, Class... parameters) {
     return getConstructor(clazz, 0, parameters);
   }
-
+  
   /**
    * Método utilizado para pegar um {@link Constructor} por um índice.
    *
@@ -221,7 +221,7 @@ public class Accessors {
         return new ConstructorAccessor<>((Constructor<T>) constructor, true);
       }
     }
-
+    
     throw new IllegalArgumentException("Cannot find constructor for class " + clazz + " with index " + indexCopy);
   }
 }

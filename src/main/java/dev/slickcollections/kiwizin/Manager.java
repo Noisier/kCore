@@ -10,23 +10,23 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class Manager {
-
+  
   public static boolean BUNGEE;
-
+  
   private static Object PROXY_SERVER;
-
+  
   private static MethodAccessor GET_NAME;
   private static MethodAccessor GET_PLAYER;
   private static MethodAccessor GET_SPIGOT;
   private static MethodAccessor HAS_PERMISSION;
   private static MethodAccessor SEND_MESSAGE;
   private static MethodAccessor SEND_MESSAGE_COMPONENTS;
-
+  
   private static MethodAccessor IS_FAKE;
   private static MethodAccessor GET_CURRENT;
   private static MethodAccessor GET_FAKE;
   private static MethodAccessor GET_FAKE_ROLE;
-
+  
   static {
     try {
       Class<?> proxyServer = Class.forName("net.md_5.bungee.api.ProxyServer");
@@ -62,8 +62,8 @@ public class Manager {
       }
     }
   }
-
-
+  
+  
   public static String getSkin(String player, String type) {
     try {
       String id = Mojang.getUUID(player);
@@ -73,48 +73,49 @@ public class Manager {
           return type.equalsIgnoreCase("value") ? textures.split(" : ")[1] : textures.split(" : ")[2];
         }
       }
-    } catch (Exception ignore) {}
-
+    } catch (Exception ignore) {
+    }
+    
     return BUNGEE ? Bungee.STEVE : FakeManager.ALEX;
   }
-
+  
   public static void sendMessage(Object player, String message) {
     if (BUNGEE) {
       sendMessage(player, TextComponent.fromLegacyText(message));
       return;
     }
-
+    
     SEND_MESSAGE.invoke(player, message);
   }
-
+  
   public static void sendMessage(Object player, BaseComponent... components) {
-    SEND_MESSAGE_COMPONENTS.invoke(BUNGEE ? player : GET_SPIGOT.invoke(player), new Object[] {components});
+    SEND_MESSAGE_COMPONENTS.invoke(BUNGEE ? player : GET_SPIGOT.invoke(player), new Object[]{components});
   }
-
+  
   public static String getName(Object player) {
     return (String) GET_NAME.invoke(player);
   }
-
+  
   public static Object getPlayer(String name) {
     return GET_PLAYER.invoke(BUNGEE ? PROXY_SERVER : null, name);
   }
-
+  
   public static String getCurrent(String playerName) {
     return (String) GET_CURRENT.invoke(null, playerName);
   }
-
+  
   public static String getFake(String playerName) {
     return (String) GET_FAKE.invoke(null, playerName);
   }
-
+  
   public static Role getFakeRole(String playerName) {
     return (Role) GET_FAKE_ROLE.invoke(null, playerName);
   }
-
+  
   public static boolean hasPermission(Object player, String permission) {
     return (boolean) HAS_PERMISSION.invoke(player, permission);
   }
-
+  
   public static boolean isFake(String playerName) {
     return (boolean) IS_FAKE.invoke(null, playerName);
   }

@@ -3,6 +3,8 @@ package dev.slickcollections.kiwizin.bungee.party;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import dev.slickcollections.kiwizin.Manager;
+import dev.slickcollections.kiwizin.party.Party;
+import dev.slickcollections.kiwizin.party.PartyPlayer;
 import dev.slickcollections.kiwizin.player.role.Role;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -10,8 +12,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import dev.slickcollections.kiwizin.party.Party;
-import dev.slickcollections.kiwizin.party.PartyPlayer;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,19 +21,19 @@ import static dev.slickcollections.kiwizin.party.PartyRole.LEADER;
 
 @SuppressWarnings("unchecked")
 public class BungeeParty extends Party {
-
+  
   public BungeeParty(String leader, int slots) {
     super(leader, slots);
     this.sendData();
   }
-
+  
   @Override
   public void delete() {
     this.sendData("delete", "true");
     BungeePartyManager.listParties().remove(this);
     this.destroy();
   }
-
+  
   @Override
   public void transfer(String name) {
     PartyPlayer newLeader = this.getPlayer(name);
@@ -42,13 +42,13 @@ public class BungeeParty extends Party {
     newLeader.setRole(LEADER);
     this.leader = newLeader;
   }
-
+  
   @Override
   public void join(String member) {
     super.join(member);
     this.sendData();
   }
-
+  
   @Override
   public void leave(String member) {
     String leader = this.getLeader();
@@ -56,7 +56,7 @@ public class BungeeParty extends Party {
       this.delete();
       return;
     }
-
+    
     this.members.removeIf(pp -> pp.getName().equalsIgnoreCase(member));
     this.sendData("remove", member);
     if (leader.equals(member)) {
@@ -67,25 +67,25 @@ public class BungeeParty extends Party {
     }
     this.broadcast(" \n" + Role.getPrefixed(member) + " §asaiu da Party!\n ");
   }
-
+  
   @Override
   public void kick(String member) {
     super.kick(member);
     this.sendData("remove", member);
   }
-
+  
   public void sendData(ServerInfo serverInfo) {
     this.sendData(null, null, Collections.singleton(serverInfo));
   }
-
+  
   private void sendData() {
     this.sendData(null, null);
   }
-
+  
   private void sendData(String extraKey, String extraValue) {
     this.sendData(extraKey, extraValue, ProxyServer.getInstance().getServers().values());
   }
-
+  
   private void sendData(String extraKey, String extraValue, Collection<ServerInfo> serverInfos) {
     JSONObject changes = new JSONObject();
     changes.put("leader", this.leader.getName());
@@ -95,23 +95,23 @@ public class BungeeParty extends Party {
     JSONArray members = new JSONArray();
     listMembers().forEach(member -> members.add(member.getName()));
     changes.put("members", members);
-
+    
     ByteArrayDataOutput out = ByteStreams.newDataOutput();
     out.writeUTF("PARTY");
     out.writeUTF(changes.toString());
     serverInfos.forEach(info -> info.sendData("kCore", out.toByteArray()));
   }
-
+  
   public void summonMembers(ServerInfo serverInfo) {
     this.summonMembers(serverInfo, this.members.stream().map(PartyPlayer::getName).collect(Collectors.toList()), true);
   }
-
+  
   private void summonMembers(ServerInfo serverInfo, Collection<String> members, boolean warn) {
     if (serverInfo == null) {
       ProxiedPlayer leader = (ProxiedPlayer) Manager.getPlayer(this.getLeader());
       serverInfo = leader != null && leader.getServer() != null ? leader.getServer().getInfo() : null;
     }
-
+    
     if (serverInfo != null) {
       String leader = Role.getPrefixed(this.getLeader());
       ServerInfo finalServerInfo = serverInfo;
@@ -135,5 +135,5 @@ public class BungeeParty extends Party {
       });
     }
   }
-
+  
 }

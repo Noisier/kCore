@@ -2,17 +2,17 @@ package dev.slickcollections.kiwizin.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import dev.slickcollections.kiwizin.Core;
+import dev.slickcollections.kiwizin.Manager;
+import dev.slickcollections.kiwizin.booster.NetworkBooster;
 import dev.slickcollections.kiwizin.database.cache.RoleCache;
 import dev.slickcollections.kiwizin.database.data.DataContainer;
 import dev.slickcollections.kiwizin.database.data.DataTable;
 import dev.slickcollections.kiwizin.database.exception.ProfileLoadException;
-import dev.slickcollections.kiwizin.Core;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import dev.slickcollections.kiwizin.Manager;
-import dev.slickcollections.kiwizin.booster.NetworkBooster;
 import dev.slickcollections.kiwizin.player.role.Role;
 import dev.slickcollections.kiwizin.utils.StringUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetProvider;
@@ -24,17 +24,16 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class HikariDatabase extends Database {
-
+  
   private final String host;
   private final String port;
   private final String dbname;
   private final String username;
   private final String password;
   private final boolean mariadb;
-
-  private HikariDataSource dataSource;
   private final ExecutorService executor;
-
+  private HikariDataSource dataSource;
+  
   public HikariDatabase(String host, String port, String dbname, String username, String password, boolean mariadb) {
     this.host = host;
     this.port = port;
@@ -42,13 +41,13 @@ public class HikariDatabase extends Database {
     this.username = username;
     this.password = password;
     this.mariadb = mariadb;
-
+    
     this.openConnection();
     this.executor = Executors.newCachedThreadPool();
-
+    
     this.update(
-      "CREATE TABLE IF NOT EXISTS `kCoreNetworkBooster` (`id` VARCHAR(32), `booster` TEXT, `multiplier` DOUBLE, `expires` LONG, PRIMARY KEY(`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;");
-
+        "CREATE TABLE IF NOT EXISTS `kCoreNetworkBooster` (`id` VARCHAR(32), `booster` TEXT, `multiplier` DOUBLE, `expires` LONG, PRIMARY KEY(`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;");
+    
     DataTable.listTables().forEach(table -> {
       this.update(table.getInfo().create());
       try (
@@ -62,7 +61,7 @@ public class HikariDatabase extends Database {
       table.init(this);
     });
   }
-
+  
   @Override
   public void setupBoosters() {
     if (!Manager.BUNGEE) {
@@ -73,12 +72,12 @@ public class HikariDatabase extends Database {
       }
     }
   }
-
+  
   @Override
   public void setBooster(String minigame, String booster, double multiplier, long expires) {
     execute("UPDATE `kCoreNetworkBooster` SET `booster` = ?, `multiplier` = ?, `expires` = ? WHERE `id` = ?", booster, multiplier, expires, minigame);
   }
-
+  
   @Override
   public NetworkBooster getBooster(String minigame) {
     try (CachedRowSet rs = query("SELECT * FROM `kCoreNetworkBooster` WHERE `id` = ?", minigame)) {
@@ -91,11 +90,12 @@ public class HikariDatabase extends Database {
           return new NetworkBooster(booster, multiplier, expires);
         }
       }
-    } catch (SQLException ignored) {}
-
+    } catch (SQLException ignored) {
+    }
+    
     return null;
   }
-
+  
   @Override
   public String getRankAndName(String player) {
     try (CachedRowSet rs = query("SELECT `name`, `role` FROM `kCoreProfile` WHERE LOWER(`name`) = ?", player.toLowerCase())) {
@@ -104,10 +104,11 @@ public class HikariDatabase extends Database {
         RoleCache.setCache(player, rs.getString("role"), rs.getString("name"));
         return result;
       }
-    } catch (SQLException ignored) {}
+    } catch (SQLException ignored) {
+    }
     return null;
   }
-
+  
   @Override
   public boolean getPreference(String player, String id, boolean def) {
     boolean preference = true;
@@ -118,10 +119,10 @@ public class HikariDatabase extends Database {
     } catch (Exception ex) {
       ex.printStackTrace();
     }
-
+    
     return preference;
   }
-
+  
   @Override
   public List<String[]> getLeaderBoard(String table, String... columns) {
     List<String[]> result = new ArrayList<>();
@@ -130,7 +131,7 @@ public class HikariDatabase extends Database {
       add.append("`").append(column).append("` + ");
       select.append("`").append(column).append("`, ");
     }
-
+    
     try (CachedRowSet rs = query("SELECT " + select + "`name` FROM `" + table + "` ORDER BY " + add + " 0 DESC LIMIT 10")) {
       if (rs != null) {
         rs.beforeFirst();
@@ -139,27 +140,28 @@ public class HikariDatabase extends Database {
           for (String column : columns) {
             count += rs.getLong(column);
           }
-          result.add(new String[] {Role.getColored(rs.getString("name"), true), StringUtils.formatNumber(count)});
+          result.add(new String[]{Role.getColored(rs.getString("name"), true), StringUtils.formatNumber(count)});
         }
       }
-    } catch (SQLException ignore) {}
-
+    } catch (SQLException ignore) {
+    }
+    
     return result;
   }
-
+  
   @Override
   public void close() {
     this.executor.shutdownNow().forEach(Runnable::run);
     this.closeConnection();
   }
-
+  
   @Override
   public Map<String, Map<String, DataContainer>> load(String name) throws ProfileLoadException {
     Map<String, Map<String, DataContainer>> tableMap = new HashMap<>();
     for (DataTable table : DataTable.listTables()) {
       Map<String, DataContainer> containerMap = new LinkedHashMap<>();
       tableMap.put(table.getInfo().name(), containerMap);
-
+      
       try (CachedRowSet rs = this.query(table.getInfo().select(), name.toLowerCase())) {
         if (rs != null) {
           for (int collumn = 2; collumn <= rs.getMetaData().getColumnCount(); collumn++) {
@@ -170,7 +172,7 @@ public class HikariDatabase extends Database {
       } catch (SQLException ex) {
         throw new ProfileLoadException(ex.getMessage());
       }
-
+      
       containerMap = table.getDefaultValues();
       tableMap.put(table.getInfo().name(), containerMap);
       List<Object> list = new ArrayList<>();
@@ -179,27 +181,27 @@ public class HikariDatabase extends Database {
       this.execute(table.getInfo().insert(), list.toArray());
       list.clear();
     }
-
+    
     return tableMap;
   }
-
+  
   @Override
   public void save(String name, Map<String, Map<String, DataContainer>> tableMap) {
     this.save0(name, tableMap, true);
   }
-
+  
   @Override
   public void saveSync(String name, Map<String, Map<String, DataContainer>> tableMap) {
     this.save0(name, tableMap, false);
   }
-
+  
   private void save0(String name, Map<String, Map<String, DataContainer>> tableMap, boolean async) {
     for (DataTable table : DataTable.listTables()) {
       Map<String, DataContainer> rows = tableMap.get(table.getInfo().name());
       if (rows.values().stream().noneMatch(DataContainer::isUpdated)) {
         continue;
       }
-
+      
       List<Object> values = rows.values().stream().filter(DataContainer::isUpdated).map(DataContainer::get).collect(Collectors.toList());
       StringBuilder query = new StringBuilder("UPDATE `" + table.getInfo().name() + "` SET ");
       for (Map.Entry<String, DataContainer> collumn : rows.entrySet()) {
@@ -220,7 +222,7 @@ public class HikariDatabase extends Database {
       values.clear();
     }
   }
-
+  
   @Override
   public String exists(String name) {
     try {
@@ -229,7 +231,7 @@ public class HikariDatabase extends Database {
       return null;
     }
   }
-
+  
   public void openConnection() {
     HikariConfig config = new HikariConfig();
     config.setPoolName("kConnectionPool");
@@ -241,24 +243,24 @@ public class HikariDatabase extends Database {
     config.setPassword(this.password);
     config.addDataSourceProperty("autoReconnect", "true");
     this.dataSource = new HikariDataSource(config);
-
+    
     LOGGER.info("Conectado ao MySQL!");
   }
-
+  
   public void closeConnection() {
     if (isConnected()) {
       this.dataSource.close();
     }
   }
-
+  
   public Connection getConnection() throws SQLException {
     return this.dataSource.getConnection();
   }
-
+  
   public boolean isConnected() {
     return !this.dataSource.isClosed();
   }
-
+  
   public void update(String sql, Object... vars) {
     Connection connection = null;
     PreparedStatement ps = null;
@@ -286,13 +288,13 @@ public class HikariDatabase extends Database {
       }
     }
   }
-
+  
   public void execute(String sql, Object... vars) {
     executor.execute(() -> {
       update(sql, vars);
     });
   }
-
+  
   public int updateWithInsertId(String sql, Object... vars) {
     int id = -1;
     Connection connection = null;
@@ -331,10 +333,10 @@ public class HikariDatabase extends Database {
         e.printStackTrace();
       }
     }
-
+    
     return id;
   }
-
+  
   public CachedRowSet query(String query, Object... vars) {
     Connection connection = null;
     PreparedStatement ps = null;
@@ -349,7 +351,7 @@ public class HikariDatabase extends Database {
       rs = ps.executeQuery();
       rowSet = RowSetProvider.newFactory().createCachedRowSet();
       rowSet.populate(rs);
-
+      
       if (rowSet.next()) {
         return rowSet;
       }
@@ -375,7 +377,7 @@ public class HikariDatabase extends Database {
         e.printStackTrace();
       }
     }
-
+    
     return null;
   }
 }

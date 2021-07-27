@@ -7,11 +7,11 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
+import dev.slickcollections.kiwizin.Core;
 import dev.slickcollections.kiwizin.player.fake.FakeManager;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import dev.slickcollections.kiwizin.Core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +21,11 @@ import static com.comphenix.protocol.PacketType.Play.Server.*;
 
 @SuppressWarnings("unchecked")
 public class FakeAdapter extends PacketAdapter {
-
+  
   public FakeAdapter() {
     super(params().plugin(Core.getInstance()).types(PacketType.Play.Client.CHAT, TAB_COMPLETE, PLAYER_INFO, CHAT, SCOREBOARD_OBJECTIVE, SCOREBOARD_SCORE, SCOREBOARD_TEAM));
   }
-
+  
   @Override
   public void onPacketReceiving(PacketEvent evt) {
     PacketContainer packet = evt.getPacket();
@@ -38,7 +38,7 @@ public class FakeAdapter extends PacketAdapter {
       }
     }
   }
-
+  
   @Override
   public void onPacketSending(PacketEvent evt) {
     PacketContainer packet = evt.getPacket();
@@ -47,7 +47,7 @@ public class FakeAdapter extends PacketAdapter {
       for (String complete : packet.getStringArrays().read(0)) {
         list.add(FakeManager.replaceNickedPlayers(complete, true));
       }
-
+      
       packet.getStringArrays().write(0, list.toArray(new String[0]));
     } else if (packet.getType() == PLAYER_INFO) {
       List<PlayerInfoData> infoDataList = new ArrayList<>();
@@ -56,10 +56,10 @@ public class FakeAdapter extends PacketAdapter {
         if (FakeManager.isFake(profile.getName())) {
           infoData = new PlayerInfoData(FakeManager.cloneProfile(profile), infoData.getLatency(), infoData.getGameMode(), infoData.getDisplayName());
         }
-
+        
         infoDataList.add(infoData);
       }
-
+      
       packet.getPlayerInfoDataLists().write(0, infoDataList);
     } else if (packet.getType() == CHAT) {
       WrappedChatComponent component = packet.getChatComponents().read(0);
@@ -88,10 +88,10 @@ public class FakeAdapter extends PacketAdapter {
         if (FakeManager.isFake(member)) {
           member = FakeManager.getFake(member);
         }
-
+        
         members.add(member);
       }
-
+      
       packet.getModifier().withType(Collection.class).write(0, members);
     }
   }

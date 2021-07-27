@@ -3,30 +3,82 @@ package dev.slickcollections.kiwizin.nms.v1_8_R3.utils.pathfinding;
 import net.minecraft.server.v1_8_R3.*;
 
 public class PlayerPathfinderNormal extends PlayerPathfinderAbstract {
-
+  
   private boolean f;
   private boolean g;
   private boolean h;
   private boolean i;
   private boolean j;
-
+  
+  public static int a(IBlockAccess paramIBlockAccess, Entity paramEntity, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5, int paramInt6,
+                      boolean paramBoolean1, boolean paramBoolean2, boolean paramBoolean3) {
+    int k = 0;
+    BlockPosition localBlockPosition = new BlockPosition(paramEntity);
+    
+    BlockPosition.MutableBlockPosition localMutableBlockPosition = new BlockPosition.MutableBlockPosition();
+    for (int m = paramInt1; m < paramInt1 + paramInt4; m++) {
+      for (int n = paramInt2; n < paramInt2 + paramInt5; n++) {
+        for (int i1 = paramInt3; i1 < paramInt3 + paramInt6; i1++) {
+          localMutableBlockPosition.c(m, n, i1);
+          Block localBlock = paramIBlockAccess.getType(localMutableBlockPosition).getBlock();
+          if (localBlock.getMaterial() != Material.AIR) {
+            if ((localBlock == Blocks.TRAPDOOR) || (localBlock == Blocks.IRON_TRAPDOOR)) {
+              k = 1;
+            } else if ((localBlock == Blocks.FLOWING_WATER) || (localBlock == Blocks.WATER)) {
+              if (paramBoolean1) {
+                return -1;
+              }
+              k = 1;
+            } else if ((!paramBoolean3) && ((localBlock instanceof BlockDoor)) && (localBlock.getMaterial() == Material.WOOD)) {
+              return 0;
+            }
+            if ((paramEntity.world.getType(localMutableBlockPosition).getBlock() instanceof BlockMinecartTrackAbstract)) {
+              if ((!(paramEntity.world.getType(localBlockPosition).getBlock() instanceof BlockMinecartTrackAbstract)) && (!(paramEntity.world.getType(localBlockPosition.down())
+                  .getBlock() instanceof BlockMinecartTrackAbstract))) {
+                return -3;
+              }
+            } else if (!localBlock.b(paramIBlockAccess, localMutableBlockPosition)) {
+              if ((!paramBoolean2) || (!(localBlock instanceof BlockDoor)) || (localBlock.getMaterial() != Material.WOOD)) {
+                if (((localBlock instanceof BlockFence)) || ((localBlock instanceof BlockFenceGate)) || ((localBlock instanceof BlockCobbleWall))) {
+                  return -3;
+                }
+                if ((localBlock == Blocks.TRAPDOOR) || (localBlock == Blocks.IRON_TRAPDOOR)) {
+                  return -4;
+                }
+                Material localMaterial = localBlock.getMaterial();
+                if (localMaterial == Material.LAVA) {
+                  if (!paramEntity.ab()) {
+                    return -2;
+                  }
+                } else {
+                  return 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return k != 0 ? 2 : 1;
+  }
+  
   @Override
   public void a() {
     super.a();
     this.h = this.j;
   }
-
+  
   public void a(boolean paramBoolean) {
     this.f = paramBoolean;
   }
-
+  
   @Override
   public PathPoint a(Entity paramEntity) {
     int k;
     if ((this.i) && (paramEntity.V())) {
       k = (int) paramEntity.getBoundingBox().b;
       BlockPosition.MutableBlockPosition localMutableBlockPosition =
-        new BlockPosition.MutableBlockPosition(MathHelper.floor(paramEntity.locX), k, MathHelper.floor(paramEntity.locZ));
+          new BlockPosition.MutableBlockPosition(MathHelper.floor(paramEntity.locX), k, MathHelper.floor(paramEntity.locZ));
       Block localBlock = this.a.getType(localMutableBlockPosition).getBlock();
       while ((localBlock == Blocks.FLOWING_WATER) || (localBlock == Blocks.WATER)) {
         k++;
@@ -39,16 +91,16 @@ public class PlayerPathfinderNormal extends PlayerPathfinderAbstract {
     }
     return a(MathHelper.floor(paramEntity.getBoundingBox().a), k, MathHelper.floor(paramEntity.getBoundingBox().c));
   }
-
+  
   @Override
   public PathPoint a(Entity paramEntity, double paramDouble1, double paramDouble2, double paramDouble3) {
     return a(MathHelper.floor(paramDouble1 - paramEntity.width / 2.0F), MathHelper.floor(paramDouble2), MathHelper.floor(paramDouble3 - paramEntity.width / 2.0F));
   }
-
+  
   private int a(Entity paramEntity, int paramInt1, int paramInt2, int paramInt3) {
     return a(this.a, paramEntity, paramInt1, paramInt2, paramInt3, this.c, this.d, this.e, this.h, this.g, this.f);
   }
-
+  
   private PathPoint a(Entity paramEntity, int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
     PathPoint localPathPoint = null;
     int k = a(paramEntity, paramInt1, paramInt2, paramInt3);
@@ -90,17 +142,17 @@ public class PlayerPathfinderNormal extends PlayerPathfinderAbstract {
     }
     return localPathPoint;
   }
-
+  
   @Override
   public void a(IBlockAccess paramIBlockAccess, Entity paramEntity) {
     super.a(paramIBlockAccess, paramEntity);
     this.j = this.h;
   }
-
+  
   @Override
   public int a(PathPoint[] paramArrayOfPathPoint, Entity paramEntity, PathPoint paramPathPoint1, PathPoint paramPathPoint2, float paramFloat) {
     int k = 0;
-
+    
     int m = 0;
     if (a(paramEntity, paramPathPoint1.a, paramPathPoint1.b + 1, paramPathPoint1.c) == 1) {
       m = 1;
@@ -123,80 +175,28 @@ public class PlayerPathfinderNormal extends PlayerPathfinderAbstract {
     }
     return k;
   }
-
+  
   public boolean b() {
     return this.f;
   }
-
+  
   public void b(boolean paramBoolean) {
     this.g = paramBoolean;
   }
-
+  
   public void c(boolean paramBoolean) {
     this.h = paramBoolean;
   }
-
+  
   public boolean d() {
     return this.i;
   }
-
+  
   public void d(boolean paramBoolean) {
     this.i = paramBoolean;
   }
-
+  
   public boolean e() {
     return this.h;
-  }
-
-  public static int a(IBlockAccess paramIBlockAccess, Entity paramEntity, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5, int paramInt6,
-    boolean paramBoolean1, boolean paramBoolean2, boolean paramBoolean3) {
-    int k = 0;
-    BlockPosition localBlockPosition = new BlockPosition(paramEntity);
-
-    BlockPosition.MutableBlockPosition localMutableBlockPosition = new BlockPosition.MutableBlockPosition();
-    for (int m = paramInt1; m < paramInt1 + paramInt4; m++) {
-      for (int n = paramInt2; n < paramInt2 + paramInt5; n++) {
-        for (int i1 = paramInt3; i1 < paramInt3 + paramInt6; i1++) {
-          localMutableBlockPosition.c(m, n, i1);
-          Block localBlock = paramIBlockAccess.getType(localMutableBlockPosition).getBlock();
-          if (localBlock.getMaterial() != Material.AIR) {
-            if ((localBlock == Blocks.TRAPDOOR) || (localBlock == Blocks.IRON_TRAPDOOR)) {
-              k = 1;
-            } else if ((localBlock == Blocks.FLOWING_WATER) || (localBlock == Blocks.WATER)) {
-              if (paramBoolean1) {
-                return -1;
-              }
-              k = 1;
-            } else if ((!paramBoolean3) && ((localBlock instanceof BlockDoor)) && (localBlock.getMaterial() == Material.WOOD)) {
-              return 0;
-            }
-            if ((paramEntity.world.getType(localMutableBlockPosition).getBlock() instanceof BlockMinecartTrackAbstract)) {
-              if ((!(paramEntity.world.getType(localBlockPosition).getBlock() instanceof BlockMinecartTrackAbstract)) && (!(paramEntity.world.getType(localBlockPosition.down())
-                .getBlock() instanceof BlockMinecartTrackAbstract))) {
-                return -3;
-              }
-            } else if (!localBlock.b(paramIBlockAccess, localMutableBlockPosition)) {
-              if ((!paramBoolean2) || (!(localBlock instanceof BlockDoor)) || (localBlock.getMaterial() != Material.WOOD)) {
-                if (((localBlock instanceof BlockFence)) || ((localBlock instanceof BlockFenceGate)) || ((localBlock instanceof BlockCobbleWall))) {
-                  return -3;
-                }
-                if ((localBlock == Blocks.TRAPDOOR) || (localBlock == Blocks.IRON_TRAPDOOR)) {
-                  return -4;
-                }
-                Material localMaterial = localBlock.getMaterial();
-                if (localMaterial == Material.LAVA) {
-                  if (!paramEntity.ab()) {
-                    return -2;
-                  }
-                } else {
-                  return 0;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    return k != 0 ? 2 : 1;
   }
 }

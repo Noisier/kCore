@@ -6,20 +6,20 @@ import java.lang.reflect.Method;
  * Essa classe representa um {@link Method} com métodos seguros de acesso.
  */
 public class MethodAccessor {
-
-  private Method handle;
-
+  
+  private final Method handle;
+  
   public MethodAccessor(Method method) {
     this(method, false);
   }
-
+  
   public MethodAccessor(Method method, boolean forceAccess) {
     this.handle = method;
     if (forceAccess) {
       method.setAccessible(true);
     }
   }
-
+  
   /**
    * Método utilizado para invocar um {@link Method}
    *
@@ -34,7 +34,7 @@ public class MethodAccessor {
       throw new RuntimeException("Cannot invoke method.", ex);
     }
   }
-
+  
   /**
    * Método utilizado para verificar se a classe do Objeto possui o {@link Method}.
    *
@@ -44,19 +44,19 @@ public class MethodAccessor {
   public boolean hasMethod(Object target) {
     return target != null && this.handle.getDeclaringClass().equals(target.getClass());
   }
-
+  
   /**
    * @return O {@link Method} representado nesse Accessor.
    */
   public Method getHandle() {
     return handle;
   }
-
+  
   @Override
   public String toString() {
     return "MethodAccessor[class=" + this.handle.getDeclaringClass().getName() + ", name=" + this.handle.getName() + ", params=" + this.handle.getParameterTypes().toString() + "]";
   }
-
+  
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -65,17 +65,15 @@ public class MethodAccessor {
     if (obj == null) {
       return false;
     }
-
+    
     if (obj instanceof MethodAccessor) {
       MethodAccessor other = (MethodAccessor) obj;
-      if (other.handle.equals(handle)) {
-        return true;
-      }
+      return other.handle.equals(handle);
     }
-
+    
     return false;
   }
-
+  
   @Override
   public int hashCode() {
     return this.handle.hashCode();

@@ -7,7 +7,6 @@ import dev.slickcollections.kiwizin.database.data.DataContainer;
 import dev.slickcollections.kiwizin.database.data.DataTable;
 import dev.slickcollections.kiwizin.database.data.interfaces.DataTableInfo;
 
-import javax.xml.crypto.Data;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -17,9 +16,9 @@ import java.util.Map;
     select = "SELECT * FROM `kCoreProfile` WHERE LOWER(`name`) = ?",
     insert = "INSERT INTO `kCoreProfile` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     update = "UPDATE `kCoreProfile` SET `cash` = ?, `role` = ?, `deliveries` = ?, `preferences` = ?, `titles` = ?, `boosters` = ?, `achievements` = ?, `selected` = ?, `created` = ?, `clan` = ?, `lastlogin` = ? WHERE LOWER(`name`) = ?"
-    )
+)
 public class CoreTable extends DataTable {
-
+  
   @Override
   public void init(Database database) {
     if (database instanceof MySQLDatabase) {
@@ -32,7 +31,7 @@ public class CoreTable extends DataTable {
       }
     }
   }
-
+  
   public Map<String, DataContainer> getDefaultValues() {
     Map<String, DataContainer> defaultValues = new LinkedHashMap<>();
     defaultValues.put("cash", new DataContainer(0L));

@@ -25,12 +25,12 @@ public class SkyWarsTable extends DataTable {
     if (database instanceof MySQLDatabase) {
       if (((MySQLDatabase) database).query("SHOW COLUMNS FROM `kCoreSkyWars` LIKE 'lastmap'") == null) {
         ((MySQLDatabase) database).execute(
-          "ALTER TABLE `kCoreSkyWars` ADD `lastmap` LONG DEFAULT 0 AFTER `coins`, ADD `kitconfig` TEXT AFTER `selected`");
+            "ALTER TABLE `kCoreSkyWars` ADD `lastmap` LONG DEFAULT 0 AFTER `coins`, ADD `kitconfig` TEXT AFTER `selected`");
       }
     } else if (database instanceof HikariDatabase) {
       if (((HikariDatabase) database).query("SHOW COLUMNS FROM `kCoreSkyWars` LIKE 'lastmap'") == null) {
         ((HikariDatabase) database).execute(
-          "ALTER TABLE `kCoreSkyWars` ADD `lastmap` LONG DEFAULT 0 AFTER `coins`, ADD `kitconfig` TEXT AFTER `selected`");
+            "ALTER TABLE `kCoreSkyWars` ADD `lastmap` LONG DEFAULT 0 AFTER `coins`, ADD `kitconfig` TEXT AFTER `selected`");
       }
     }
   }
@@ -53,12 +53,12 @@ public class SkyWarsTable extends DataTable {
     defaultValues.put("rankedgames", new DataContainer(0L));
     defaultValues.put("rankedwins", new DataContainer(0L));
     defaultValues.put("rankedpoints", new DataContainer(0L));
-    for (String key : new String[] {"kills", "deaths", "points",
-            "assists", "wins", "games"}) {
+    for (String key : new String[]{"kills", "deaths", "points",
+        "assists", "wins", "games"}) {
       defaultValues.put("monthly" + key, new DataContainer(0L));
     }
     defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" +
-            Calendar.getInstance().get(Calendar.YEAR)));
+        Calendar.getInstance().get(Calendar.YEAR)));
     defaultValues.put("coins", new DataContainer(0L));
     defaultValues.put("lastmap", new DataContainer(0L));
     defaultValues.put("cosmetics", new DataContainer("{}"));

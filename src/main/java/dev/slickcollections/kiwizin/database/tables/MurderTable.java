@@ -16,22 +16,22 @@ import java.util.Map;
     insert = "INSERT INTO `kCoreMurder` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     update = "UPDATE `kCoreMurder` SET `clkills` = ?, `clbowkills` = ?, `clknifekills` = ?, `clthrownknifekills` = ?, `clwins` = ?, `cldetectivewins` = ?, `clkillerwins` = ?, `clquickestdetective` = ?, `clquickestkiller` = ?, `clchancedetective` = ?, `clchancekiller` = ?, `askills` = ?, `asthrownknifekills` = ?, `aswins` = ?, `coins` = ?, `lastmap` = ?, `innocentHotbar` = ?, `murderHotbar` = ?, `detectiveHotbar` = ?, `cosmetics` = ?, `selected` = ? WHERE LOWER(`name`) = ?")
 public class MurderTable extends DataTable {
-
+  
   @Override
   public void init(Database database) {
     if (database instanceof MySQLDatabase) {
       if (((MySQLDatabase) database).query("SHOW COLUMNS FROM `kCoreMurder` LIKE 'askills'") == null) {
         ((MySQLDatabase) database).execute(
-          "ALTER TABLE `kCoreMurder` ADD `askills` LONG DEFAULT 0 AFTER `clchancekiller`, ADD `asthrownknifekills` LONG DEFAULT 0 AFTER `askills`, ADD `aswins` LONG DEFAULT 0 AFTER `asthrownknifekills`");
+            "ALTER TABLE `kCoreMurder` ADD `askills` LONG DEFAULT 0 AFTER `clchancekiller`, ADD `asthrownknifekills` LONG DEFAULT 0 AFTER `askills`, ADD `aswins` LONG DEFAULT 0 AFTER `asthrownknifekills`");
       }
     } else if (database instanceof HikariDatabase) {
       if (((HikariDatabase) database).query("SHOW COLUMNS FROM `kCoreMurder` LIKE 'askills'") == null) {
         ((HikariDatabase) database).execute(
-          "ALTER TABLE `kCoreMurder` ADD `askills` LONG DEFAULT 0 AFTER `clchancekiller`, ADD `asthrownknifekills` LONG DEFAULT 0 AFTER `askills`, ADD `aswins` LONG DEFAULT 0 AFTER `asthrownknifekills`");
+            "ALTER TABLE `kCoreMurder` ADD `askills` LONG DEFAULT 0 AFTER `clchancekiller`, ADD `asthrownknifekills` LONG DEFAULT 0 AFTER `askills`, ADD `aswins` LONG DEFAULT 0 AFTER `asthrownknifekills`");
       }
     }
   }
-
+  
   public Map<String, DataContainer> getDefaultValues() {
     Map<String, DataContainer> defaultValues = new LinkedHashMap<>();
     defaultValues.put("clkills", new DataContainer(0L));

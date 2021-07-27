@@ -1,13 +1,13 @@
 package dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers;
 
+import dev.slickcollections.kiwizin.nms.NMS;
 import dev.slickcollections.kiwizin.nms.v1_8_R3.entity.EntityNPCPlayer;
 import net.minecraft.server.v1_8_R3.*;
-import dev.slickcollections.kiwizin.nms.NMS;
 
 import java.util.Random;
 
 public class PlayerControllerMove extends ControllerMove {
-
+  
   protected EntityLiving a;
   protected double b;
   protected double c;
@@ -15,7 +15,7 @@ public class PlayerControllerMove extends ControllerMove {
   protected double e;
   protected boolean f;
   private int h;
-
+  
   public PlayerControllerMove(EntityLiving entityinsentient) {
     super(entityinsentient instanceof EntityInsentient ? (EntityInsentient) entityinsentient : new EntitySlime(entityinsentient.world));
     this.a = entityinsentient;
@@ -23,12 +23,12 @@ public class PlayerControllerMove extends ControllerMove {
     this.c = entityinsentient.locY;
     this.d = entityinsentient.locZ;
   }
-
+  
   @Override
   public boolean a() {
     return this.f;
   }
-
+  
   @Override
   public void a(double d0, double d1, double d2, double d3) {
     this.b = d0;
@@ -37,35 +37,35 @@ public class PlayerControllerMove extends ControllerMove {
     this.e = d3;
     this.f = true;
   }
-
+  
   @Override
   protected float a(float f, float f1, float f2) {
     float f3 = MathHelper.g(f1 - f);
-
+    
     if (f3 > f2) {
       f3 = f2;
     }
-
+    
     if (f3 < -f2) {
       f3 = -f2;
     }
-
+    
     float f4 = f + f3;
-
+    
     if (f4 < 0.0F)
       f4 += 360.0F;
     else if (f4 > 360.0F) {
       f4 -= 360.0F;
     }
-
+    
     return f4;
   }
-
+  
   @Override
   public double b() {
     return this.e;
   }
-
+  
   @Override
   public void c() {
     this.a.ba = 0F;
@@ -97,26 +97,26 @@ public class PlayerControllerMove extends ControllerMove {
       }
     }
   }
-
+  
   protected int cg() {
     return new Random().nextInt(20) + 10;
   }
-
+  
   @Override
   public double d() {
     return this.b;
   }
-
+  
   @Override
   public double e() {
     return this.c;
   }
-
+  
   @Override
   public double f() {
     return this.d;
   }
-
+  
   private boolean shouldSlimeJump() {
     if (!(this.a instanceof EntitySlime)) {
       return false;

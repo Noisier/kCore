@@ -1,19 +1,19 @@
 package dev.slickcollections.kiwizin.libraries.npclib.npc.skin;
 
-import org.bukkit.entity.Player;
 import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
+import org.bukkit.entity.Player;
 
 public interface SkinnableEntity {
-
-  public NPC getNPC();
-
-  public Player getEntity();
-
-  public SkinPacketTracker getSkinTracker();
-
-  public void setSkin(Skin skin);
-
-  public Skin getSkin();
-
-  public void setSkinFlags(byte flags);
+  
+  NPC getNPC();
+  
+  Player getEntity();
+  
+  SkinPacketTracker getSkinTracker();
+  
+  Skin getSkin();
+  
+  void setSkin(Skin skin);
+  
+  void setSkinFlags(byte flags);
 }

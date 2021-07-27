@@ -1,5 +1,7 @@
 package dev.slickcollections.kiwizin.hook;
 
+import dev.slickcollections.kiwizin.Core;
+import dev.slickcollections.kiwizin.cash.CashManager;
 import dev.slickcollections.kiwizin.player.Profile;
 import dev.slickcollections.kiwizin.player.enums.PlayerVisibility;
 import dev.slickcollections.kiwizin.player.role.Role;
@@ -7,43 +9,41 @@ import dev.slickcollections.kiwizin.servers.ServerItem;
 import dev.slickcollections.kiwizin.utils.StringUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
-import dev.slickcollections.kiwizin.Core;
-import dev.slickcollections.kiwizin.cash.CashManager;
 
 import java.text.SimpleDateFormat;
 
 @SuppressWarnings("all")
 public class KCoreExpansion extends PlaceholderExpansion {
-
+  
   private static final SimpleDateFormat MURDER_FORMAT = new SimpleDateFormat("mm:ss");
-
+  
   @Override
   public boolean canRegister() {
     return true;
   }
-
+  
   @Override
   public String getAuthor() {
     return "Kiwizin";
   }
-
+  
   @Override
   public String getIdentifier() {
     return "kCore";
   }
-
+  
   @Override
   public String getVersion() {
     return Core.getInstance().getDescription().getVersion();
   }
-
+  
   @Override
   public String onPlaceholderRequest(Player player, String params) {
     Profile profile = null;
     if (player == null || (profile = Profile.getProfile(player.getName())) == null) {
       return "";
     }
-
+    
     if (params.startsWith("online")) {
       if (params.contains("online_")) {
         String server = params.replace("online_", "");
@@ -51,10 +51,10 @@ public class KCoreExpansion extends PlaceholderExpansion {
         if (si != null) {
           return StringUtils.formatNumber(si.getBalancer().getTotalNumber());
         }
-
+        
         return "entry invalida";
       }
-
+      
       long online = 0;
       for (ServerItem si : ServerItem.listServers()) {
         online += si.getBalancer().getTotalNumber();
@@ -70,7 +70,7 @@ public class KCoreExpansion extends PlaceholderExpansion {
       if (profile.getPreferencesContainer().getPlayerVisibility() == PlayerVisibility.TODOS) {
         return "§aON";
       }
-
+      
       return "§cOFF";
     } else if (params.equals("status_jogadores_inksack")) {
       return profile.getPreferencesContainer().getPlayerVisibility().getInkSack();
@@ -108,7 +108,7 @@ public class KCoreExpansion extends PlaceholderExpansion {
       if (value.startsWith("classic_")) {
         String data = value.replace("classic_", "");
         if (data.equals("kills") || data.equals("bowkills") || data.equals("knifekills") || data.equals("thrownknifekills") || data.equals("wins") || data
-                .equals("detectivewins") || data.equals("killerwins")) {
+            .equals("detectivewins") || data.equals("killerwins")) {
           return StringUtils.formatNumber(profile.getStats(table, "cl" + data));
         } else if (data.equals("quickestdetective") || data.equals("quickestkiller")) {
           return MURDER_FORMAT.format(profile.getStats(table, "cl" + data) * 1000);
@@ -136,7 +136,7 @@ public class KCoreExpansion extends PlaceholderExpansion {
         return StringUtils.formatNumber(profile.getCoins(table));
       }
     }
-
+    
     return null;
   }
 }

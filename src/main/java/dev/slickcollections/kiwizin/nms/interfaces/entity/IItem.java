@@ -1,23 +1,23 @@
 package dev.slickcollections.kiwizin.nms.interfaces.entity;
 
 import dev.slickcollections.kiwizin.libraries.holograms.api.HologramLine;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 
 public interface IItem {
-
-  public void setPassengerOf(Entity entity);
-
-  public void setItemStack(ItemStack item);
-
-  public void setLocation(double x, double y, double z);
-
-  public boolean isDead();
-
-  public void killEntity();
-
-  public Item getEntity();
-
-  public HologramLine getLine();
+  
+  void setPassengerOf(Entity entity);
+  
+  void setItemStack(ItemStack item);
+  
+  void setLocation(double x, double y, double z);
+  
+  boolean isDead();
+  
+  void killEntity();
+  
+  Item getEntity();
+  
+  HologramLine getLine();
 }

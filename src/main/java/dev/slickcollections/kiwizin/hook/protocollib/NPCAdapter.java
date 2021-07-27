@@ -14,15 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NPCAdapter extends PacketAdapter {
-
+  
   public NPCAdapter() {
     super(params().plugin(NPCLibrary.getPlugin()).types(PacketType.Play.Server.ENTITY_STATUS, PacketType.Play.Server.NAMED_ENTITY_SPAWN, PacketType.Play.Server.PLAYER_INFO));
   }
-
+  
   @Override
   public void onPacketSending(PacketEvent evt) {
     PacketContainer packet = evt.getPacket();
-
+    
     Player player = evt.getPlayer();
     if (packet.getType() == PacketType.Play.Server.PLAYER_INFO) {
       List<PlayerInfoData> toSend = new ArrayList<>();
@@ -37,22 +37,23 @@ public class NPCAdapter extends PacketAdapter {
             profile.getProperties().get("textures").stream().findFirst().ifPresent(prop -> data.getProfile().getProperties().put("textures", prop));
           }
         }
-
+        
         toSend.add(data);
       }
-
+      
       if (!needsClone) {
         toSend.clear();
         return;
       }
-
+      
       PacketContainer clone = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
       clone.getPlayerInfoAction().write(0, packet.getPlayerInfoAction().read(0));
       clone.getPlayerInfoDataLists().write(0, toSend);
       evt.setPacket(clone);
     }
   }
-
+  
   @Override
-  public void onPacketReceiving(PacketEvent evt) {}
+  public void onPacketReceiving(PacketEvent evt) {
+  }
 }

@@ -1,11 +1,18 @@
 package dev.slickcollections.kiwizin.libraries.npclib.npc;
 
 import com.google.common.base.Preconditions;
+import dev.slickcollections.kiwizin.libraries.npclib.NPCLibrary;
+import dev.slickcollections.kiwizin.libraries.npclib.api.EntityController;
 import dev.slickcollections.kiwizin.libraries.npclib.api.event.*;
+import dev.slickcollections.kiwizin.libraries.npclib.api.metadata.MetadataStore;
 import dev.slickcollections.kiwizin.libraries.npclib.api.metadata.SimpleMetadataStore;
+import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
+import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPCAnimation;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.skin.SkinnableEntity;
 import dev.slickcollections.kiwizin.libraries.npclib.trait.CurrentLocation;
 import dev.slickcollections.kiwizin.libraries.npclib.trait.NPCTrait;
+import dev.slickcollections.kiwizin.nms.NMS;
+import dev.slickcollections.kiwizin.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -16,43 +23,41 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import dev.slickcollections.kiwizin.libraries.npclib.NPCLibrary;
-import dev.slickcollections.kiwizin.libraries.npclib.api.EntityController;
-import dev.slickcollections.kiwizin.libraries.npclib.api.metadata.MetadataStore;
-import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
-import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPCAnimation;
-import dev.slickcollections.kiwizin.nms.NMS;
-import dev.slickcollections.kiwizin.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class AbstractNPC implements NPC {
-
+  
   private UUID uuid;
   private String name;
   private EntityController controller;
-
-  private MetadataStore data;
+  
+  private final MetadataStore data;
   private Map<Class<? extends NPCTrait>, NPCTrait> traits;
-
+  private int ticksToUpdate;
+  private Entity following;
+  private boolean navigating;
+  private Location walkingTo;
+  private boolean laying;
+  
   public AbstractNPC(UUID uuid, String name, EntityController controller) {
     this.uuid = uuid;
     this.name = name;
     this.controller = controller;
-
+    
     this.data = new SimpleMetadataStore();
     this.traits = new HashMap<>();
     addTrait(CurrentLocation.class);
   }
-
+  
   @Override
   public boolean spawn(Location location) {
     Preconditions.checkNotNull(location, "A localizacao nao pode ser null!");
     Preconditions.checkState(!isSpawned(), "O npc ja esta spawnado!");
     controller.spawn(location, this);
-
+    
     boolean couldSpawn = Utils.isLoaded(location) && NMS.addToWorld(location.getWorld(), controller.getBukkitEntity(), SpawnReason.CUSTOM);
     if (couldSpawn) {
       SkinnableEntity entity = NMS.getSkinnable(getEntity());
@@ -60,44 +65,44 @@ public class AbstractNPC implements NPC {
         entity.getSkinTracker().onSpawnNPC();
       }
     }
-
+    
     getTrait(CurrentLocation.class).setLocation(location);
     if (!couldSpawn) {
       Bukkit.getPluginManager().callEvent(new NPCNeedsRespawnEvent(this));
       controller.remove();
       return false;
     }
-
+    
     NPCSpawnEvent event = new NPCSpawnEvent(this);
     if (event.isCancelled()) {
       controller.remove();
       return false;
     }
-
+    
     NMS.setHeadYaw(getEntity(), location.getYaw());
     getEntity().setMetadata("NPC", new FixedMetadataValue(NPCLibrary.getPlugin(), this));
-
+    
     for (NPCTrait trait : traits.values()) {
       trait.onSpawn();
     }
-
+    
     if (getEntity() instanceof LivingEntity) {
       LivingEntity entity = (LivingEntity) getEntity();
       entity.setRemoveWhenFarAway(false);
-
+      
       if (NMS.getStepHeight(entity) < 1.0f) {
         NMS.setStepHeight(entity, 1.0f);
       }
-
+      
       if (getEntity() instanceof Player) {
         NMS.replaceTrackerEntry((Player) getEntity());
       }
     }
-
+    
     getTrait(CurrentLocation.class).setLocation(getEntity().getLocation());
     return true;
   }
-
+  
   @Override
   public boolean despawn() {
     Preconditions.checkState(isSpawned(), "O npc nao esta spawnado!");
@@ -106,11 +111,11 @@ public class AbstractNPC implements NPC {
     if (event.isCancelled()) {
       return false;
     }
-
+    
     for (NPCTrait trait : traits.values()) {
       trait.onDespawn();
     }
-
+    
     this.controller.remove();
     Bukkit.getOnlinePlayers().forEach(player -> {
       Scoreboard sb = player.getScoreboard();
@@ -124,13 +129,13 @@ public class AbstractNPC implements NPC {
     });
     return true;
   }
-
+  
   @Override
   public void destroy() {
     if (isSpawned()) {
       despawn();
     }
-
+    
     Bukkit.getOnlinePlayers().forEach(player -> {
       Scoreboard sb = player.getScoreboard();
       Team team = sb.getTeam("mNPCS");
@@ -148,20 +153,18 @@ public class AbstractNPC implements NPC {
     this.traits = null;
     NPCLibrary.unregister(this);
   }
-
+  
   @Override
   public MetadataStore data() {
     return data;
   }
-
-  private int ticksToUpdate;
-
+  
   @Override
   public void update() {
     if (isSpawned()) {
       if (ticksToUpdate++ > 30) {
         ticksToUpdate = 0;
-
+        
         Entity entity = controller.getBukkitEntity();
         if (entity instanceof Player) {
           for (Player players : Bukkit.getServer().getOnlinePlayers()) {
@@ -173,14 +176,14 @@ public class AbstractNPC implements NPC {
                   team = sb.registerNewTeam("mNPCS");
                   team.setNameTagVisibility(NameTagVisibility.NEVER);
                 }
-
+                
                 if (!team.hasEntry(this.name)) {
                   team.addEntry(this.name);
                 }
-
+                
                 continue;
               }
-
+              
               if (team != null && team.getSize() == 0) {
                 team.unregister();
               }
@@ -190,7 +193,7 @@ public class AbstractNPC implements NPC {
       }
     }
   }
-
+  
   @Override
   public void playAnimation(NPCAnimation animation) {
     Preconditions.checkState(isSpawned(), "O npc nao esta spawnado!");
@@ -213,7 +216,7 @@ public class AbstractNPC implements NPC {
       throw new RuntimeException("Falha ao adicionar Trait " + traitClass.getName(), e);
     }
   }
-
+  
   @Override
   public void removeTrait(Class<? extends NPCTrait> traitClass) {
     NPCTrait trait = traits.get(traitClass);
@@ -222,16 +225,53 @@ public class AbstractNPC implements NPC {
       traits.remove(traitClass);
     }
   }
-
-  private Entity following;
-  private boolean navigating;
-  private Location walkingTo;
-
+  
   public void finishNavigation() {
     Bukkit.getPluginManager().callEvent(new NPCNavigationEndEvent(this));
     this.navigating = false;
   }
-
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends NPCTrait> T getTrait(Class<T> traitClass) {
+    return (T) this.traits.get(traitClass);
+  }
+  
+  @Override
+  public boolean isSpawned() {
+    return this.controller != null && this.controller.getBukkitEntity() != null && this.controller.getBukkitEntity().isValid();
+  }
+  
+  @Override
+  public boolean isProtected() {
+    return data().get(PROTECTED_KEY, true);
+  }
+  
+  @Override
+  public boolean isNavigating() {
+    return this.navigating;
+  }
+  
+  @Override
+  public boolean isLaying() {
+    return this.laying;
+  }
+  
+  @Override
+  public void setLaying(boolean laying) {
+    this.laying = true;
+  }
+  
+  @Override
+  public Entity getEntity() {
+    return this.controller.getBukkitEntity();
+  }
+  
+  @Override
+  public Entity getFollowing() {
+    return this.following;
+  }
+  
   @Override
   public void setFollowing(Entity entity) {
     Preconditions.checkState(!this.navigating, "O npc ja esta andando para um local!");
@@ -240,7 +280,12 @@ public class AbstractNPC implements NPC {
     }
     this.following = entity;
   }
-
+  
+  @Override
+  public Location getWalkingTo() {
+    return this.walkingTo;
+  }
+  
   @Override
   public void setWalkingTo(Location location) {
     Preconditions.checkState(this.following == null, "O npc ja esta seguindo uma entidade!");
@@ -249,71 +294,23 @@ public class AbstractNPC implements NPC {
       return;
     }
     Preconditions.checkState(!this.navigating, "O npc ja esta andando para um local!");
-
+    
     this.navigating = true;
     this.walkingTo = location;
   }
-
-  private boolean laying;
-
-  @Override
-  public void setLaying(boolean laying) {
-    this.laying = true;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T extends NPCTrait> T getTrait(Class<T> traitClass) {
-    return (T) this.traits.get(traitClass);
-  }
-
-  @Override
-  public boolean isSpawned() {
-    return this.controller != null && this.controller.getBukkitEntity() != null && this.controller.getBukkitEntity().isValid();
-  }
-
-  @Override
-  public boolean isProtected() {
-    return data().get(PROTECTED_KEY, true);
-  }
-
-  @Override
-  public boolean isNavigating() {
-    return this.navigating;
-  }
-
-  @Override
-  public boolean isLaying() {
-    return this.laying;
-  }
-
-  @Override
-  public Entity getEntity() {
-    return this.controller.getBukkitEntity();
-  }
-
-  @Override
-  public Entity getFollowing() {
-    return this.following;
-  }
-
-  @Override
-  public Location getWalkingTo() {
-    return this.walkingTo;
-  }
-
+  
   @Override
   public Location getCurrentLocation() {
     return this.getTrait(CurrentLocation.class).getLocation().getWorld() != null ?
-      this.getTrait(CurrentLocation.class).getLocation() :
-      this.isSpawned() ? this.getEntity().getLocation() : null;
+        this.getTrait(CurrentLocation.class).getLocation() :
+        this.isSpawned() ? this.getEntity().getLocation() : null;
   }
-
+  
   @Override
   public UUID getUUID() {
     return this.uuid;
   }
-
+  
   @Override
   public String getName() {
     return this.name;

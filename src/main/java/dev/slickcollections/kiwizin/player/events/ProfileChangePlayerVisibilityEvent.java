@@ -1,19 +1,24 @@
 package dev.slickcollections.kiwizin.player.events;
 
+import dev.slickcollections.kiwizin.player.Profile;
 import dev.slickcollections.kiwizin.player.enums.PlayerVisibility;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import dev.slickcollections.kiwizin.player.Profile;
 
 public class ProfileChangePlayerVisibilityEvent extends Event {
-
-  private Profile profile;
-  private PlayerVisibility playerVisibility;
+  
+  private static final HandlerList HANDLER_LIST = new HandlerList();
+  private final Profile profile;
+  private final PlayerVisibility playerVisibility;
   
   public ProfileChangePlayerVisibilityEvent(Profile profile) {
     this.profile = profile;
     this.playerVisibility = profile.getPreferencesContainer().getPlayerVisibility();
+  }
+  
+  public static HandlerList getHandlerList() {
+    return HANDLER_LIST;
   }
   
   public Player getPlayer() {
@@ -30,12 +35,6 @@ public class ProfileChangePlayerVisibilityEvent extends Event {
   
   @Override
   public HandlerList getHandlers() {
-    return HANDLER_LIST;
-  }
-  
-  private static final HandlerList HANDLER_LIST = new HandlerList();
-
-  public static HandlerList getHandlerList() {
     return HANDLER_LIST;
   }
 }

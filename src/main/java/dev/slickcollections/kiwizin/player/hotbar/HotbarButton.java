@@ -2,9 +2,9 @@ package dev.slickcollections.kiwizin.player.hotbar;
 
 public class HotbarButton {
   
-  private int slot;
-  private HotbarAction action;
-  private String icon;
+  private final int slot;
+  private final HotbarAction action;
+  private final String icon;
   
   public HotbarButton(int slot, HotbarAction action, String icon) {
     this.slot = slot;

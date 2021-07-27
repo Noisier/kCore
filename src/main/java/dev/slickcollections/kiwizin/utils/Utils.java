@@ -6,7 +6,7 @@ import org.bukkit.Location;
  * Classe com utilitários diversos sem nicho predefinido.
  */
 public class Utils {
-
+  
   public static float clampYaw(float yaw) {
     while (yaw < -180.0F) {
       yaw += 360.0F;
@@ -14,10 +14,10 @@ public class Utils {
     while (yaw >= 180.0F) {
       yaw -= 360.0F;
     }
-
+    
     return yaw;
   }
-
+  
   /**
    * Verifica se uma localização tem a chunk carregada no mundo.
    *
@@ -28,7 +28,7 @@ public class Utils {
     if (location == null || location.getWorld() == null) {
       return false;
     }
-
+    
     int chunkX = location.getBlockX() >> 4;
     int chunkZ = location.getBlockZ() >> 4;
     return location.getWorld().isChunkLoaded(chunkX, chunkZ);

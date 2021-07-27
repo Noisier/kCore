@@ -2,7 +2,6 @@ package dev.slickcollections.kiwizin.database.tables;
 
 import dev.slickcollections.kiwizin.database.Database;
 import dev.slickcollections.kiwizin.database.HikariDatabase;
-import dev.slickcollections.kiwizin.database.MongoDBDatabase;
 import dev.slickcollections.kiwizin.database.MySQLDatabase;
 import dev.slickcollections.kiwizin.database.data.DataContainer;
 import dev.slickcollections.kiwizin.database.data.DataTable;
@@ -18,7 +17,7 @@ import java.util.Map;
     insert = "INSERT INTO `kCoreTheBridge` VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     update = "UPDATE `kCoreTheBridge` SET `1v1kills` = ?, `1v1deaths` = ?, `1v1games` = ?, `1v1points` = ?, `1v1wins` = ?, `2v2kills` = ?, `2v2deaths` = ?, `2v2games` = ?, `2v2points` = ?, `2v2wins` = ?, `monthlykills` = ?, `montlhydeaths` = ?, `monthlyassists` = ?, `monthlywins` = ?, `monthlygames` = ?, `month` = ?, `coins` = ?, `winstreak` = ?, `laststreak` = ?, `lastmap` = ?, `hotbar` = ?, `cosmetics` = ?, `selected` = ? WHERE LOWER(`name`) = ?")
 public class TheBridgeTable extends DataTable {
-
+  
   @Override
   public void init(Database database) {
     if (database instanceof MySQLDatabase) {
@@ -31,7 +30,7 @@ public class TheBridgeTable extends DataTable {
       }
     }
   }
-
+  
   public Map<String, DataContainer> getDefaultValues() {
     Map<String, DataContainer> defaultValues = new LinkedHashMap<>();
     defaultValues.put("1v1kills", new DataContainer(0L));
@@ -44,11 +43,11 @@ public class TheBridgeTable extends DataTable {
     defaultValues.put("2v2games", new DataContainer(0L));
     defaultValues.put("2v2points", new DataContainer(0L));
     defaultValues.put("2v2wins", new DataContainer(0L));
-    for (String key : new String[] {"kills", "deaths", "points", "wins", "games"}) {
+    for (String key : new String[]{"kills", "deaths", "points", "wins", "games"}) {
       defaultValues.put("monthly" + key, new DataContainer(0L));
     }
     defaultValues.put("month", new DataContainer((Calendar.getInstance().get(Calendar.MONTH) + 1) + "/" +
-            Calendar.getInstance().get(Calendar.YEAR)));
+        Calendar.getInstance().get(Calendar.YEAR)));
     defaultValues.put("coins", new DataContainer(0.0D));
     defaultValues.put("winstreak", new DataContainer(0L));
     defaultValues.put("laststreak", new DataContainer(System.currentTimeMillis()));

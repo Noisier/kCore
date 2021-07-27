@@ -9,8 +9,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataTableInfo {
   String name();
+  
   String create();
+  
   String select();
+  
   String insert();
+  
   String update();
 }

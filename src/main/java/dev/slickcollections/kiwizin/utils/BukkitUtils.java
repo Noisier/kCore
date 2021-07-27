@@ -27,13 +27,23 @@ import static java.lang.Float.parseFloat;
  * Classe com utilitários relacionado a {@link org.bukkit}.
  */
 public class BukkitUtils {
-
+  
   /**
    * Todas as cores prontas da classe {@link Color}
    */
   public static final List<FieldAccessor<Color>> COLORS;
   public static final MethodAccessor GET_PROFILE;
   public static final FieldAccessor<GameProfile> SKULL_META_PROFILE;
+  private static final Map<Class<?>, MethodAccessor> getHandleCache = new HashMap<>();
+  private static final Class<?> NBTagList = MinecraftReflection.getMinecraftClass("NBTTagList");
+  private static final Class<?> NBTagString = MinecraftReflection.getMinecraftClass("NBTTagString");
+  private static final ConstructorAccessor<?> constructorTagList = new ConstructorAccessor<>(NBTagList.getConstructors()[0]);
+  private static final ConstructorAccessor<?> constructorTagString = new ConstructorAccessor<>(NBTagString.getConstructors()[1]);
+  private static final MethodAccessor getTag = Accessors.getMethod(MinecraftReflection.getItemStackClass(), "getTag");
+  private static final MethodAccessor setCompound = Accessors.getMethod(MinecraftReflection.getNBTTagCompoundClass(), "set", String.class, NBTagList.getSuperclass());
+  private static final MethodAccessor addList = Accessors.getMethod(NBTagList, "add");
+  private static final MethodAccessor asNMSCopy = Accessors.getMethod(MinecraftReflection.getCraftItemStackClass(), "asNMSCopy");
+  private static final MethodAccessor asCraftMirror = Accessors.getMethod(MinecraftReflection.getCraftItemStackClass(), "asCraftMirror");
 
   static {
     COLORS = new ArrayList<>();
@@ -46,8 +56,6 @@ public class BukkitUtils {
     SKULL_META_PROFILE = Accessors.getField(MinecraftReflection.getCraftBukkitClass("inventory.CraftMetaSkull"), "profile", GameProfile.class);
   }
 
-  private static Map<Class<?>, MethodAccessor> getHandleCache = new HashMap<>();
-
   public static Object getHandle(Object target) {
     try {
       Class<?> clazz = target.getClass();
@@ -56,7 +64,7 @@ public class BukkitUtils {
         accessor = Accessors.getMethod(clazz, "getHandle");
         getHandleCache.put(clazz, accessor);
       }
-
+      
       return accessor.invoke(target);
     } catch (Exception ex) {
       throw new IllegalArgumentException("Cannot find method getHandle() for " + target + ".");
@@ -65,7 +73,7 @@ public class BukkitUtils {
 
   public static void openBook(Player player, ItemStack book) {
     Object entityPlayer = BukkitUtils.getHandle(player);
-
+    
     ItemStack old = player.getInventory().getItemInHand();
     try {
       player.getInventory().setItemInHand(book);
@@ -109,65 +117,59 @@ public class BukkitUtils {
     if (item == null || item.isEmpty()) {
       return new ItemStack(Material.AIR);
     }
-
+    
     item = StringUtils.formatColors(item).replace("\\n", "\n");
     String[] split = item.split(" : ");
     String mat = split[0].split(":")[0];
-
+    
     ItemStack stack = new ItemStack(Material.matchMaterial(mat), 1);
     if (split[0].split(":").length > 1) {
       stack.setDurability((short) Integer.parseInt(split[0].split(":")[1]));
     }
     ItemMeta meta = stack.getItemMeta();
-
+    
     BookMeta book = meta instanceof BookMeta ? ((BookMeta) meta) : null;
     SkullMeta skull = meta instanceof SkullMeta ? ((SkullMeta) meta) : null;
     PotionMeta potion = meta instanceof PotionMeta ? ((PotionMeta) meta) : null;
     FireworkEffectMeta effect = meta instanceof FireworkEffectMeta ? ((FireworkEffectMeta) meta) : null;
     LeatherArmorMeta armor = meta instanceof LeatherArmorMeta ? ((LeatherArmorMeta) meta) : null;
     EnchantmentStorageMeta enchantment = meta instanceof EnchantmentStorageMeta ? ((EnchantmentStorageMeta) meta) : null;
-
+    
     if (split.length > 1) {
       stack.setAmount(Math.min(Integer.parseInt(split[1]), 64));
     }
-
+    
     List<String> lore = new ArrayList<>();
     for (int i = 2; i < split.length; i++) {
       String opt = split[i];
-
+      
       if (opt.startsWith("nome>")) {
         meta.setDisplayName(StringUtils.formatColors(opt.split(">")[1]));
-      }
-
-      else if (opt.startsWith("desc>")) {
+      } else if (opt.startsWith("desc>")) {
         for (String lored : opt.split(">")[1].split("\n")) {
           lore.add(StringUtils.formatColors(lored));
         }
-      }
-
-      else if (opt.startsWith("encantar>")) {
+      } else if (opt.startsWith("encantar>")) {
         for (String enchanted : opt.split(">")[1].split("\n")) {
           if (enchantment != null) {
             enchantment.addStoredEnchant(Enchantment.getByName(enchanted.split(":")[0]), Integer.parseInt(enchanted.split(":")[1]), true);
             continue;
           }
-
+          
           meta.addEnchant(Enchantment.getByName(enchanted.split(":")[0]), Integer.parseInt(enchanted.split(":")[1]), true);
         }
-      }
-
-      else if (opt.startsWith("pintar>") && (effect != null || armor != null)) {
+      } else if (opt.startsWith("pintar>") && (effect != null || armor != null)) {
         for (String color : opt.split(">")[1].split("\n")) {
           if (color.split(":").length > 2) {
             if (armor != null) {
               armor.setColor(Color.fromRGB(Integer.parseInt(color.split(":")[0]), Integer.parseInt(color.split(":")[1]), Integer.parseInt(color.split(":")[2])));
             } else if (effect != null) {
               effect.setEffect(FireworkEffect.builder()
-                .withColor(Color.fromRGB(Integer.parseInt(color.split(":")[0]), Integer.parseInt(color.split(":")[1]), Integer.parseInt(color.split(":")[2]))).build());
+                  .withColor(Color.fromRGB(Integer.parseInt(color.split(":")[0]), Integer.parseInt(color.split(":")[1]), Integer.parseInt(color.split(":")[2]))).build());
             }
             continue;
           }
-
+          
           for (FieldAccessor<Color> field : COLORS) {
             if (field.getHandle().getName().equals(color.toUpperCase())) {
               if (armor != null) {
@@ -179,37 +181,23 @@ public class BukkitUtils {
             }
           }
         }
-      }
-
-      else if (opt.startsWith("dono>") && skull != null) {
+      } else if (opt.startsWith("dono>") && skull != null) {
         skull.setOwner(opt.split(">")[1]);
-      }
-
-      else if (opt.startsWith("skin>") && skull != null) {
+      } else if (opt.startsWith("skin>") && skull != null) {
         GameProfile gp = new GameProfile(UUID.randomUUID(), null);
         gp.getProperties().put("textures", new Property("textures", opt.split(">")[1]));
         SKULL_META_PROFILE.set(skull, gp);
-      }
-
-      else if (opt.startsWith("paginas>") && book != null) {
+      } else if (opt.startsWith("paginas>") && book != null) {
         book.setPages(opt.split(">")[1].split("\\{pular}"));
-      }
-
-      else if (opt.startsWith("autor>") && book != null) {
+      } else if (opt.startsWith("autor>") && book != null) {
         book.setAuthor(opt.split(">")[1]);
-      }
-
-      else if (opt.startsWith("titulo>") && book != null) {
+      } else if (opt.startsWith("titulo>") && book != null) {
         book.setTitle(opt.split(">")[1]);
-      }
-
-      else if (opt.startsWith("efeito>") && potion != null) {
+      } else if (opt.startsWith("efeito>") && potion != null) {
         for (String pe : opt.split(">")[1].split("\n")) {
           potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(pe.split(":")[0]), Integer.parseInt(pe.split(":")[2]), Integer.parseInt(pe.split(":")[1])), false);
         }
-      }
-
-      else if (opt.startsWith("esconder>")) {
+      } else if (opt.startsWith("esconder>")) {
         String[] flags = opt.split(">")[1].split("\n");
         for (String flag : flags) {
           if (flag.equalsIgnoreCase("tudo")) {
@@ -224,7 +212,7 @@ public class BukkitUtils {
     if (!lore.isEmpty()) {
       meta.setLore(lore);
     }
-
+    
     stack.setItemMeta(meta);
     return stack;
   }
@@ -239,18 +227,18 @@ public class BukkitUtils {
   public static String serializeItemStack(ItemStack item) {
     StringBuilder sb = new StringBuilder(item.getType().name() + (item.getDurability() != 0 ? ":" + item.getDurability() : "") + " : " + item.getAmount());
     ItemMeta meta = item.getItemMeta();
-
+    
     BookMeta book = meta instanceof BookMeta ? ((BookMeta) meta) : null;
     SkullMeta skull = meta instanceof SkullMeta ? ((SkullMeta) meta) : null;
     PotionMeta potion = meta instanceof PotionMeta ? ((PotionMeta) meta) : null;
     FireworkEffectMeta effect = meta instanceof FireworkEffectMeta ? ((FireworkEffectMeta) meta) : null;
     LeatherArmorMeta armor = meta instanceof LeatherArmorMeta ? ((LeatherArmorMeta) meta) : null;
     EnchantmentStorageMeta enchantment = meta instanceof EnchantmentStorageMeta ? ((EnchantmentStorageMeta) meta) : null;
-
+    
     if (meta.hasDisplayName()) {
       sb.append(" : nome>").append(StringUtils.deformatColors(meta.getDisplayName()));
     }
-
+    
     if (meta.hasLore()) {
       sb.append(" : desc>");
       for (int i = 0; i < meta.getLore().size(); i++) {
@@ -258,7 +246,7 @@ public class BukkitUtils {
         sb.append(line).append(i + 1 == meta.getLore().size() ? "" : "\n");
       }
     }
-
+    
     if (meta.hasEnchants() || (enchantment != null && enchantment.hasStoredEnchants())) {
       sb.append(" : encantar>");
       int size = 0;
@@ -268,28 +256,28 @@ public class BukkitUtils {
         sb.append(name).append(":").append(level).append(++size == (enchantment != null ? enchantment.getStoredEnchants() : meta.getEnchants()).size() ? "" : "\n");
       }
     }
-
+    
     if (skull != null && !skull.getOwner().isEmpty()) {
       sb.append(" : dono>").append(skull.getOwner());
     }
-
+    
     if (book != null && book.hasPages()) {
       sb.append(" : paginas>").append(StringUtils.join(book.getPages(), "{pular}"));
     }
-
+    
     if (book != null && book.hasTitle()) {
       sb.append(" : titulo>").append(book.getTitle());
     }
-
+    
     if (book != null && book.hasAuthor()) {
       sb.append(" : autor>").append(book.getAuthor());
     }
-
+    
     if ((effect != null && effect.hasEffect() && !effect.getEffect().getColors().isEmpty()) || (armor != null && armor.getColor() != null)) {
       Color color = effect != null ? effect.getEffect().getColors().get(0) : armor.getColor();
       sb.append(" : pintar>").append(color.getRed()).append(":").append(color.getGreen()).append(":").append(color.getBlue());
     }
-
+    
     if (potion != null && potion.hasCustomEffects()) {
       sb.append(" : efeito>");
       int size = 0;
@@ -297,11 +285,11 @@ public class BukkitUtils {
         sb.append(pe.getType().getName()).append(":").append(pe.getAmplifier()).append(":").append(pe.getDuration()).append(++size == potion.getCustomEffects().size() ? "" : "\n");
       }
     }
-
+    
     for (ItemFlag flag : meta.getItemFlags()) {
       sb.append(" : esconder>").append(flag.name());
     }
-
+    
     return StringUtils.deformatColors(sb.toString()).replace("\n", "\\n");
   }
 
@@ -316,7 +304,7 @@ public class BukkitUtils {
     if (head == null || !(head.getItemMeta() instanceof SkullMeta)) {
       return head;
     }
-
+    
     ItemMeta meta = head.getItemMeta();
     SKULL_META_PROFILE.set(meta, (GameProfile) GET_PROFILE.invoke(player));
     head.setItemMeta(meta);
@@ -334,7 +322,7 @@ public class BukkitUtils {
     if (head == null || !(head.getItemMeta() instanceof SkullMeta)) {
       return head;
     }
-
+    
     ItemMeta meta = head.getItemMeta();
     SKULL_META_PROFILE.set(meta, (GameProfile) profile);
     head.setItemMeta(meta);
@@ -352,17 +340,7 @@ public class BukkitUtils {
     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
     item.setItemMeta(meta);
   }
-
-  private static Class<?> NBTagList = MinecraftReflection.getMinecraftClass("NBTTagList");
-  private static Class<?> NBTagString = MinecraftReflection.getMinecraftClass("NBTTagString");
-  private static ConstructorAccessor<?> constructorTagList = new ConstructorAccessor<>(NBTagList.getConstructors()[0]);
-  private static ConstructorAccessor<?> constructorTagString = new ConstructorAccessor<>(NBTagString.getConstructors()[1]);
-  private static MethodAccessor getTag = Accessors.getMethod(MinecraftReflection.getItemStackClass(), "getTag");
-  private static MethodAccessor setCompound = Accessors.getMethod(MinecraftReflection.getNBTTagCompoundClass(), "set", String.class, NBTagList.getSuperclass());
-  private static MethodAccessor addList = Accessors.getMethod(NBTagList, "add");
-  private static MethodAccessor asNMSCopy = Accessors.getMethod(MinecraftReflection.getCraftItemStackClass(), "asNMSCopy");
-  private static MethodAccessor asCraftMirror = Accessors.getMethod(MinecraftReflection.getCraftItemStackClass(), "asCraftMirror");
-
+  
   /**
    * Transforma um {@link ItemStack} em ItemStack do NMS
    *
@@ -372,7 +350,7 @@ public class BukkitUtils {
   public static Object asNMSCopy(ItemStack item) {
     return asNMSCopy.invoke(null, item);
   }
-
+  
   /**
    * Transforma um ItemStack do NMS em {@link ItemStack}
    *
@@ -382,7 +360,7 @@ public class BukkitUtils {
   public static ItemStack asCraftMirror(Object nmsItem) {
     return (ItemStack) asCraftMirror.invoke(null, nmsItem);
   }
-
+  
   public static ItemStack setNBTList(ItemStack item, String key, List<String> strings) {
     Object nmsStack = asNMSCopy(item);
     Object compound = getTag.invoke(nmsStack);
@@ -393,7 +371,7 @@ public class BukkitUtils {
     setCompound.invoke(compound, key, compoundList);
     return asCraftMirror(nmsStack);
   }
-
+  
   /**
    * Transforma uma {@link Location} em uma {@code String} utilizando o seguinte formato:<br/>
    * {@code "mundo; x; y; z; yaw; pitch"}
@@ -403,9 +381,9 @@ public class BukkitUtils {
    */
   public static String serializeLocation(Location unserialized) {
     return unserialized.getWorld().getName() + "; " + unserialized.getX() + "; " + unserialized.getY() + "; " + unserialized.getZ() + "; " + unserialized
-      .getYaw() + "; " + unserialized.getPitch();
+        .getYaw() + "; " + unserialized.getPitch();
   }
-
+  
   /**
    * Transforma uma {@code String} em uma {@link Location} utilizando o seguinte formato:<br/>
    * {@code "mundo; x; y; z; yaw; pitch"}

@@ -12,9 +12,10 @@ import java.util.regex.Pattern;
  * Classe com utilitários relacionado a {@link String}.
  */
 public class StringUtils {
-
+  
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###");
-
+  private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)(§)[0-9A-FK-OR]");
+  
   /**
    * Formata um número "#,###" através do {@link DecimalFormat}
    *
@@ -24,7 +25,7 @@ public class StringUtils {
   public static String formatNumber(int number) {
     return DECIMAL_FORMAT.format(number);
   }
-
+  
   /**
    * Formata um número "#,###" através do {@link DecimalFormat}
    *
@@ -34,7 +35,7 @@ public class StringUtils {
   public static String formatNumber(long number) {
     return DECIMAL_FORMAT.format(number);
   }
-
+  
   /**
    * Formata um número "#,###" através do {@link DecimalFormat}
    *
@@ -44,9 +45,7 @@ public class StringUtils {
   public static String formatNumber(double number) {
     return DECIMAL_FORMAT.format(number);
   }
-
-  private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)(§)[0-9A-FK-OR]");
-
+  
   /**
    * Remove todas as cores de uma String.<br/>
    * Color code: §
@@ -58,10 +57,10 @@ public class StringUtils {
     if (input == null) {
       return null;
     }
-
+    
     return COLOR_PATTERN.matcher(input).replaceAll("");
   }
-
+  
   /**
    * Formata os {@code &} para o color code {@code §}.
    *
@@ -71,7 +70,7 @@ public class StringUtils {
   public static String formatColors(String textToFormat) {
     return translateAlternateColorCodes('&', textToFormat);
   }
-
+  
   /**
    * Desformata o color code {@code §} para {@code &}.
    *
@@ -84,10 +83,10 @@ public class StringUtils {
       String color = matcher.group();
       textToDeFormat = textToDeFormat.replaceFirst(Pattern.quote(color), Matcher.quoteReplacement("&" + color.substring(1)));
     }
-
+    
     return textToDeFormat;
   }
-
+  
   /**
    * Formata os {@link altColorChar} para o color code {@code §}.
    *
@@ -96,17 +95,17 @@ public class StringUtils {
    * @return A string com as cores formatadas.
    */
   public static String translateAlternateColorCodes(char altColorChar, String textToTranslate) {
-    Pattern pattern = Pattern.compile("(?i)(" + String.valueOf(altColorChar) + ")[0-9A-FK-OR]");
-
+    Pattern pattern = Pattern.compile("(?i)(" + altColorChar + ")[0-9A-FK-OR]");
+    
     Matcher matcher = pattern.matcher(textToTranslate);
     while (matcher.find()) {
       String color = matcher.group();
       textToTranslate = textToTranslate.replaceFirst(Pattern.quote(color), Matcher.quoteReplacement("§" + color.substring(1)));
     }
-
+    
     return textToTranslate;
   }
-
+  
   /**
    * Pega a primeira cor de uma {@code String}.
    *
@@ -119,10 +118,10 @@ public class StringUtils {
     if (matcher.find()) {
       first = matcher.group();
     }
-
+    
     return first;
   }
-
+  
   /**
    * Pega a última cor de uma {@code String}.
    *
@@ -135,10 +134,10 @@ public class StringUtils {
     while (matcher.find()) {
       last = matcher.group();
     }
-
+    
     return last;
   }
-
+  
   /**
    * Repete uma String várias vezes.
    *
@@ -151,10 +150,10 @@ public class StringUtils {
     for (int i = 0; i < amount; i++) {
       sb.append(repeat);
     }
-
+    
     return sb.toString();
   }
-
+  
   /**
    * Junta uma Array em uma {@code String} utilizando um separador.
    *
@@ -168,10 +167,10 @@ public class StringUtils {
     for (int slot = index; slot < array.length; slot++) {
       joined.append(array[slot].toString() + (slot + 1 == array.length ? "" : separator));
     }
-
+    
     return joined.toString();
   }
-
+  
   /**
    * Junta uma Array em uma {@code String} utilizando um separador.
    *
@@ -182,7 +181,7 @@ public class StringUtils {
   public static <T> String join(T[] array, String separator) {
     return join(array, 0, separator);
   }
-
+  
   /**
    * Junta uma Coleção em uma {@code String} utilizando um separador.
    *
@@ -193,7 +192,7 @@ public class StringUtils {
   public static <T> String join(Collection<T> collection, String separator) {
     return join(collection.toArray(new Object[collection.size()]), separator);
   }
-
+  
   /**
    * Quebra uma {@code String} várias vezes para criar linhas com o tamanho máximo definido.<br/>
    * <b>Observação:</b> Esse método é uma variação do {@link StringUtils#split(String, int, boolean)}
@@ -206,7 +205,7 @@ public class StringUtils {
   public static String[] split(String toSplit, int length) {
     return split(toSplit, length, false);
   }
-
+  
   /**
    * "Capitaliza" uma String Exemplo: MAXTER se torna Maxter
    *
@@ -215,17 +214,17 @@ public class StringUtils {
    */
   public static String capitalise(String toCapitalise) {
     StringBuilder result = new StringBuilder();
-
+    
     String[] splittedString = toCapitalise.split(" ");
     for (int index = 0; index < splittedString.length; index++) {
       String append = splittedString[index];
       result.append(append.substring(0, 1).toUpperCase() + append.substring(1).toLowerCase() + (index + 1 == splittedString.length ? "" : " "));
     }
-
+    
     return result.toString();
   }
-
-
+  
+  
   /**
    * Quebra uma {@code String} várias vezes para criar linhas com o tamanho máximo definido.
    *
@@ -237,7 +236,7 @@ public class StringUtils {
    */
   public static String[] split(String toSplit, int length, boolean ignoreIncompleteWords) {
     StringBuilder result = new StringBuilder(), current = new StringBuilder();
-
+    
     char[] arr = toSplit.toCharArray();
     for (int charId = 0; charId < arr.length; charId++) {
       char character = arr[charId];
@@ -247,30 +246,30 @@ public class StringUtils {
           for (int l = current.length() - 1; l > 0; l--) {
             if (current.charAt(l) == ' ') {
               current.deleteCharAt(l);
-              result.append(current.toString() + "\n");
+              result.append(current + "\n");
               Collections.reverse(removedChars);
               current = new StringBuilder(join(removedChars, ""));
               break;
             }
-
+            
             removedChars.add(current.charAt(l));
             current.deleteCharAt(l);
           }
-
+          
           removedChars.clear();
           removedChars = null;
         } else {
-          result.append(current.toString() + "\n");
+          result.append(current + "\n");
           current = new StringBuilder();
         }
       }
-
+      
       current.append(current.length() == 0 && character == ' ' ? "" : character);
       if (charId + 1 == arr.length) {
-        result.append(current.toString() + "\n");
+        result.append(current + "\n");
       }
     }
-
+    
     return result.toString().split("\n");
   }
 }

@@ -10,9 +10,9 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class MojangAPI extends Mojang {
-
+  
   private boolean response;
-
+  
   @Override
   public String fetchId(String name) {
     this.response = false;
@@ -31,7 +31,7 @@ public class MojangAPI extends Mojang {
       return null;
     }
   }
-
+  
   @Override
   public String fetchSkinProperty(String id) {
     this.response = false;
@@ -58,7 +58,7 @@ public class MojangAPI extends Mojang {
       return null;
     }
   }
-
+  
   @Override
   public boolean getResponse() {
     return response;

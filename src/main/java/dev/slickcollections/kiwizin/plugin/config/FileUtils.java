@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class FileUtils {
-
-  private KPlugin plugin;
-
+  
+  private final KPlugin plugin;
+  
   public FileUtils(KPlugin plugin) {
     this.plugin = plugin;
   }
-
+  
   /**
    * Deleta um arquivo/pasta.
    *
@@ -24,14 +24,14 @@ public class FileUtils {
     if (!file.exists()) {
       return;
     }
-
+    
     if (file.isDirectory()) {
       Arrays.stream(file.listFiles()).forEach(this::deleteFile);
     }
-
+    
     file.delete();
   }
-
+  
   /**
    * Copia um arquivo de um diretório para outro.
    *
@@ -45,12 +45,12 @@ public class FileUtils {
       if (!out.exists()) {
         out.mkdirs();
       }
-
+      
       for (File file : in.listFiles()) {
         if (list.contains(file.getName())) {
           continue;
         }
-
+        
         copyFiles(file, new File(out, file.getName()));
       }
     } else {
@@ -61,7 +61,7 @@ public class FileUtils {
       }
     }
   }
-
+  
   /**
    * Copia um arquivo de um {@link InputStream}.
    *
@@ -87,7 +87,8 @@ public class FileUtils {
         if (input != null) {
           input.close();
         }
-      } catch (IOException ignored) {}
+      } catch (IOException ignored) {
+      }
     }
   }
 }

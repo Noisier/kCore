@@ -8,7 +8,12 @@ import dev.slickcollections.kiwizin.libraries.npclib.npc.ai.NPCHolder;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.skin.Skin;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.skin.SkinPacketTracker;
 import dev.slickcollections.kiwizin.libraries.npclib.npc.skin.SkinnableEntity;
+import dev.slickcollections.kiwizin.nms.NMS;
 import dev.slickcollections.kiwizin.nms.v1_8_R3.network.EmptyNetHandler;
+import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.PlayerNavigation;
+import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerJump;
+import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerLook;
+import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerMove;
 import dev.slickcollections.kiwizin.utils.Utils;
 import net.minecraft.server.v1_8_R3.*;
 import net.minecraft.server.v1_8_R3.WorldSettings.EnumGamemode;
@@ -17,27 +22,22 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import dev.slickcollections.kiwizin.nms.NMS;
-import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.PlayerNavigation;
-import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerJump;
-import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerLook;
-import dev.slickcollections.kiwizin.nms.v1_8_R3.utils.controllers.PlayerControllerMove;
 
 public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, SkinnableEntity {
-
+  
+  private final dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC npc;
+  private final SkinPacketTracker skinTracker;
   private PlayerControllerJump controllerJump;
   private PlayerControllerLook controllerLook;
   private PlayerControllerMove controllerMove;
   private int jumpTicks = 0;
   private PlayerNavigation navigation;
-
-  private final dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC npc;
   private Skin skin;
-  private final SkinPacketTracker skinTracker;
-
+  private int ticks = 0;
+  
   public EntityNPCPlayer(MinecraftServer server, WorldServer world, GameProfile profile, PlayerInteractManager manager, dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC npc) {
     super(server, world, profile, manager);
-
+    
     this.npc = npc;
     if (npc != null) {
       manager.setGameMode(EnumGamemode.SURVIVAL);
@@ -47,46 +47,46 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       skinTracker = null;
     }
   }
-
+  
   protected void a(double d0, boolean flag, Block block, BlockPosition blockposition) {
     if (npc == null || !npc.data().get(NPC.FLYABLE, false)) {
       super.a(d0, flag, block, blockposition);
     }
   }
-
+  
   @Override
   public void collide(net.minecraft.server.v1_8_R3.Entity entity) {
     super.collide(entity);
   }
-
+  
   @Override
   public boolean damageEntity(DamageSource damagesource, float f) {
     return super.damageEntity(damagesource, f);
   }
-
+  
   public void die(DamageSource damagesource) {
     if (this.dead) {
       return;
     }
-
+    
     super.die(damagesource);
     Bukkit.getScheduler().runTaskLater(NPCLibrary.getPlugin(), () -> world.removeEntity(EntityNPCPlayer.this), 35L);
   }
-
+  
   @Override
   public void e(float f, float f1) {
     if (npc == null || !npc.data().get(NPC.FLYABLE, false)) {
       super.e(f, f1);
     }
   }
-
+  
   @Override
   public void g(double d0, double d1, double d2) {
     if (npc == null || !npc.isProtected()) {
       super.g(d0, d1, d2);
     }
   }
-
+  
   @Override
   public void g(float f, float f1) {
     if (npc == null || !npc.data().get(NPC.FLYABLE, false)) {
@@ -95,27 +95,27 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       NMS.flyingMoveLogic(getBukkitEntity(), f, f1);
     }
   }
-
+  
   public PlayerControllerJump getControllerJump() {
     return controllerJump;
   }
-
+  
   public PlayerControllerMove getControllerMove() {
     return controllerMove;
   }
-
+  
   public PlayerNavigation getNavigation() {
     return navigation;
   }
-
+  
   public CraftPlayer getBukkitEntity() {
     if (this.npc != null && bukkitEntity == null) {
       bukkitEntity = new PlayerNPC(this);
     }
-
+    
     return super.getBukkitEntity();
   }
-
+  
   public void initialise() {
     this.invulnerableTicks = 0;
     this.playerConnection = new EmptyNetHandler(this);
@@ -126,29 +126,29 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
     }
     range.setValue(25.0D);
     this.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(1.0);
-
+    
     this.controllerJump = new PlayerControllerJump(this);
     this.controllerLook = new PlayerControllerLook(this);
     this.controllerMove = new PlayerControllerMove(this);
     this.navigation = new PlayerNavigation(this, world);
     NMS.setStepHeight(getBukkitEntity(), 1.0f);
-
+    
     setSkinFlags((byte) 0xFF);
   }
-
+  
   public boolean isNavigating() {
     return !this.getNavigation().m();
   }
-
+  
   @Override
   public boolean k_() {
     if (npc == null || !npc.data().get(NPC.FLYABLE, false)) {
       return super.k_();
     }
-
+    
     return false;
   }
-
+  
   public void livingEntityBaseTick() {
     if (!this.world.isClientSide) {
       b(0, this.fireTicks > 0);
@@ -165,7 +165,7 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
     this.lastYaw = this.yaw;
     this.lastPitch = this.pitch;
   }
-
+  
   private void moveOnCurrentHeading() {
     if (aY) {
       if (onGround && jumpTicks == 0) {
@@ -184,14 +184,14 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       jumpTicks--;
     }
   }
-
+  
   @Override
   public void t_() {
     super.t_();
     if (npc == null) {
       return;
     }
-
+    
     this.noclip = isSpectator();
     livingEntityBaseTick();
     boolean navigating = this.isNavigating();
@@ -199,7 +199,7 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
     if (!navigating && npc.data().get(NPC.GRAVITY, false) && getBukkitEntity() != null && Utils.isLoaded(getBukkitEntity().getLocation())) {
       g(0, 0);
     }
-
+    
     if (Math.abs(this.motX) < 0.00499999988824129D && Math.abs(this.motY) < 0.00499999988824129D && Math.abs(this.motZ) < 0.00499999988824129D) {
       this.motX = this.motY = this.motZ = 0;
     }
@@ -207,21 +207,21 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       if (!this.getNavigation().m()) {
         this.getNavigation().k();
       }
-
+      
       this.moveOnCurrentHeading();
     }
     this.startNavigating();
     this.controllerMove.c();
     this.controllerLook.a();
     this.controllerJump.b();
-
+    
     if (noDamageTicks > 0) {
       noDamageTicks--;
     }
-
+    
     npc.update();
   }
-
+  
   private void startNavigating() {
     Location location = this.getNPC().getWalkingTo();
     if (location == null) {
@@ -232,31 +232,31 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
           this.getNPC().setFollowing(null);
           return;
         }
-
+        
         double distance = location.distance(this.getBukkitEntity().getLocation());
         if (distance > this.getAttributeInstance(GenericAttributes.FOLLOW_RANGE).getValue()) {
           this.getNPC().setFollowing(null);
           return;
         }
-
+        
         this.getNavigation().a(location.getX() + 1, location.getY(), location.getZ() + 1, this.isSprinting() ? 1.3 : 1.0);
       }
     }
-
+    
     if (location != null) {
       double distance = location.distance(this.getBukkitEntity().getLocation());
       if (distance > this.getAttributeInstance(GenericAttributes.FOLLOW_RANGE).getValue() || distance < 1) {
         this.getNPC().finishNavigation();
         return;
       }
-
+      
       this.getNPC().setWalkingTo(null);
       this.getNavigation().a(location.getX(), location.getY(), location.getZ(), this.isSprinting() ? 1.3 : 1.0);
     } else if (this.getNPC().isNavigating() && !this.isNavigating()) {
       this.getNPC().finishNavigation();
     }
   }
-
+  
   public void playAnimation(NPCAnimation animation) {
     PacketPlayOutAnimation packet = new PacketPlayOutAnimation(this, animation.getId());
     for (Entity player : getEntity().getNearbyEntities(64.0, 64.0, 64.0)) {
@@ -265,9 +265,7 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       }
     }
   }
-
-  private int ticks = 0;
-
+  
   private void updatePackets(boolean navigating) {
     if (ticks++ > 30) {
       ticks = 0;
@@ -278,7 +276,7 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       for (int i = 0; i < 5; i++) {
         packets[i] = new PacketPlayOutEntityEquipment(getId(), i, getEquipment(i));
       }
-
+      
       PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(this);
       for (Entity player : getEntity().getNearbyEntities(64.0, 64.0, 64.0)) {
         if (player instanceof Player && !(player instanceof PlayerNPC)) {
@@ -290,40 +288,40 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
           }
         }
       }
-
+      
       NMS.removeFromPlayerList(getBukkitEntity());
     }
   }
-
+  
   @Override
   public Player getEntity() {
     return getBukkitEntity();
   }
-
+  
   @Override
   public dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC getNPC() {
     return npc;
   }
-
+  
   @Override
   public SkinPacketTracker getSkinTracker() {
     return skinTracker;
   }
-
+  
+  @Override
+  public Skin getSkin() {
+    return skin;
+  }
+  
   @Override
   public void setSkin(Skin skin) {
     if (skin != null) {
       skin.apply(this);
     }
-
+    
     this.skin = skin;
   }
-
-  @Override
-  public Skin getSkin() {
-    return skin;
-  }
-
+  
   @Override
   public void setSkinFlags(byte flags) {
     try {
@@ -332,41 +330,41 @@ public class EntityNPCPlayer extends EntityPlayer implements NPCHolder, Skinnabl
       getDataWatcher().a(10, flags);
     }
   }
-
+  
   static class PlayerNPC extends CraftPlayer implements NPCHolder, SkinnableEntity {
-
-    private dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC npc;
-
+    
+    private final dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC npc;
+    
     public PlayerNPC(EntityNPCPlayer entity) {
       super(entity.world.getServer(), entity);
       this.npc = entity.npc;
     }
-
+    
     @Override
     public Player getEntity() {
       return this;
     }
-
+    
     @Override
     public SkinPacketTracker getSkinTracker() {
       return ((SkinnableEntity) entity).getSkinTracker();
     }
-
+    
     @Override
     public NPC getNPC() {
       return npc;
     }
-
-    @Override
-    public void setSkin(Skin skin) {
-      ((SkinnableEntity) entity).setSkin(skin);
-    }
-
+    
     @Override
     public Skin getSkin() {
       return ((SkinnableEntity) entity).getSkin();
     }
-
+    
+    @Override
+    public void setSkin(Skin skin) {
+      ((SkinnableEntity) entity).setSkin(skin);
+    }
+    
     @Override
     public void setSkinFlags(byte flags) {
       ((SkinnableEntity) entity).setSkinFlags(flags);

@@ -4,26 +4,30 @@ import dev.slickcollections.kiwizin.libraries.npclib.api.npc.NPC;
 import dev.slickcollections.kiwizin.libraries.npclib.api.trait.Trait;
 
 public abstract class NPCTrait implements Trait {
-
-  private NPC npc;
-
+  
+  private final NPC npc;
+  
   public NPCTrait(NPC npc) {
     this.npc = npc;
   }
-
+  
   public NPC getNPC() {
     return npc;
   }
-
+  
   @Override
-  public void onAttach() {}
-
+  public void onAttach() {
+  }
+  
   @Override
-  public void onSpawn() {}
-
+  public void onSpawn() {
+  }
+  
   @Override
-  public void onDespawn() {}
-
+  public void onDespawn() {
+  }
+  
   @Override
-  public void onRemove() {}
+  public void onRemove() {
+  }
 }

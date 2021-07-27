@@ -1,7 +1,7 @@
 package dev.slickcollections.kiwizin.hook;
 
 public class FriendsHook {
-
+  
   public static boolean isFriend(String player, String friend) {
     return false;
   }

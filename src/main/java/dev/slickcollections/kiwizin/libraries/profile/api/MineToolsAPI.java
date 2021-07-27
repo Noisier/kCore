@@ -10,9 +10,9 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class MineToolsAPI extends Mojang {
-
+  
   private boolean response;
-
+  
   @Override
   public String fetchId(String name) {
     this.response = false;
@@ -38,7 +38,7 @@ public class MineToolsAPI extends Mojang {
       return null;
     }
   }
-
+  
   @Override
   public String fetchSkinProperty(String id) {
     this.response = false;
@@ -57,7 +57,7 @@ public class MineToolsAPI extends Mojang {
         this.response = true;
         return null;
       }
-
+      
       JsonObject properties = new JsonParser().parse(builder.toString()).getAsJsonObject().get("raw").getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
       String name = properties.get("name").getAsString();
       String value = properties.get("value").getAsString();
@@ -68,7 +68,7 @@ public class MineToolsAPI extends Mojang {
       return null;
     }
   }
-
+  
   @Override
   public boolean getResponse() {
     return response;

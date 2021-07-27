@@ -1,33 +1,31 @@
 package dev.slickcollections.kiwizin.player.hotbar;
 
-import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 import dev.slickcollections.kiwizin.listeners.Listeners;
-import org.bukkit.entity.Player;
 import dev.slickcollections.kiwizin.menus.MenuProfile;
 import dev.slickcollections.kiwizin.menus.MenuServers;
 import dev.slickcollections.kiwizin.player.Profile;
 import dev.slickcollections.kiwizin.utils.StringUtils;
+import org.bukkit.entity.Player;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class HotbarActionType {
-
-  public abstract void execute(Profile profile, String action);
-
-  private static Map<String, HotbarActionType> actionTypes = new HashMap<>();
+  
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.#");
+  private static final Map<String, HotbarActionType> actionTypes = new HashMap<>();
 
   static {
     actionTypes.put("comando", new HotbarActionType() {
-
+      
       @Override
       public void execute(Profile profile, String action) {
         profile.getPlayer().performCommand(action);
       }
     });
     actionTypes.put("mensagem", new HotbarActionType() {
-
+      
       @Override
       public void execute(Profile profile, String action) {
         profile.getPlayer().sendMessage(StringUtils.formatColors(action).replace("\\n", "\n"));
@@ -51,12 +49,12 @@ public abstract class HotbarActionType {
               if (timeString.endsWith("0")) {
                 timeString = timeString.substring(0, timeString.lastIndexOf("."));
               }
-
+              
               player.sendMessage("§cVocê precisa aguardar mais " + timeString + "s para utilizar novamente.");
               return;
             }
           }
-
+          
           Listeners.DELAY_PLAYERS.put(player.getName(), System.currentTimeMillis() + 3000);
           profile.getPreferencesContainer().changePlayerVisibility();
           switch (profile.getPreferencesContainer().getPlayerVisibility()) {
@@ -72,12 +70,14 @@ public abstract class HotbarActionType {
       }
     });
   }
-
+  
   public static void addActionType(String name, HotbarActionType actionType) {
     actionTypes.put(name.toLowerCase(), actionType);
   }
-
+  
   public static HotbarActionType fromName(String name) {
     return actionTypes.get(name.toLowerCase());
   }
+  
+  public abstract void execute(Profile profile, String action);
 }

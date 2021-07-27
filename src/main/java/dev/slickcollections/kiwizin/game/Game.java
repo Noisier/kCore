@@ -1,9 +1,9 @@
 package dev.slickcollections.kiwizin.game;
 
-import java.util.List;
-
 import dev.slickcollections.kiwizin.player.Profile;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public interface Game<T extends GameTeam> {
   

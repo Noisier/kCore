@@ -1,9 +1,10 @@
 package dev.slickcollections.kiwizin.libraries.npclib.npc;
 
+import dev.slickcollections.kiwizin.libraries.npclib.api.EntityController;
+import org.bukkit.entity.EntityType;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.entity.EntityType;
-import dev.slickcollections.kiwizin.libraries.npclib.api.EntityController;
 
 public class EntityControllers {
   

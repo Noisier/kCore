@@ -4,6 +4,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import dev.slickcollections.kiwizin.libraries.holograms.api.Hologram;
 import dev.slickcollections.kiwizin.libraries.holograms.api.HologramLine;
+import dev.slickcollections.kiwizin.nms.interfaces.entity.IItem;
+import dev.slickcollections.kiwizin.nms.interfaces.entity.ISlime;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -20,56 +22,54 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
-import dev.slickcollections.kiwizin.nms.interfaces.entity.IItem;
-import dev.slickcollections.kiwizin.nms.interfaces.entity.ISlime;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class HologramListeners implements Listener {
-
-  private Plugin plugin;
+  
   private final Map<Player, Long> anticlickSpam = new HashMap<>();
   private final ListMultimap<ChunkCoord, Hologram> toRespawn = ArrayListMultimap.create();
-
+  private final Plugin plugin;
+  
   public HologramListeners() {
     this.plugin = HologramLibrary.getPlugin();
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR)
   public void onItemSpawn(ItemSpawnEvent evt) {
     if (evt.getEntity() instanceof IItem) {
       evt.setCancelled(false);
     }
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR)
   public void onPluginDisable(PluginDisableEvent evt) {
     if (this.plugin.equals(evt.getPlugin())) {
       HologramLibrary.unregisterAll();
     }
   }
-
+  
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent evt) {
     anticlickSpam.remove(evt.getPlayer());
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerInteractEntity(PlayerInteractEntityEvent evt) {
     if (evt.getRightClicked().getType() == EntityType.SLIME) {
       Player player = evt.getPlayer();
-
+      
       if (evt.getRightClicked() instanceof ISlime && !player.getGameMode().toString().contains("SPECTATOR")) {
         ISlime slime = (ISlime) evt.getRightClicked();
-
+        
         Long lastClick = anticlickSpam.get(player);
         if (lastClick != null && System.currentTimeMillis() - lastClick < 1000) {
           return;
         }
-
+        
         anticlickSpam.put(player, System.currentTimeMillis());
-
+        
         HologramLine line = slime.getLine();
         if (line != null && line.getTouchHandler() != null) {
           line.getTouchHandler().onTouch(player);
@@ -77,7 +77,7 @@ public class HologramListeners implements Listener {
       }
     }
   }
-
+  
   @EventHandler(ignoreCancelled = true)
   public void onWorldLoad(WorldLoadEvent evt) {
     for (ChunkCoord coord : this.toRespawn.keys()) {
@@ -86,7 +86,7 @@ public class HologramListeners implements Listener {
       }
     }
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onWorldUnload(WorldUnloadEvent evt) {
     for (Hologram hologram : HologramLibrary.listHolograms()) {
@@ -99,18 +99,18 @@ public class HologramListeners implements Listener {
           }
           return;
         }
-
+        
         hologram.despawn();
         storeForRespawn(hologram);
       }
     }
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onChunkLoad(ChunkLoadEvent evt) {
     respawnAllFromCoord(toCoord(evt.getChunk()));
   }
-
+  
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onChunkUnload(ChunkUnloadEvent evt) {
     ChunkCoord coord = toCoord(evt.getChunk());
@@ -118,7 +118,7 @@ public class HologramListeners implements Listener {
     for (Hologram hologram : HologramLibrary.listHolograms()) {
       if (hologram != null && hologram.isSpawned()) {
         location = hologram.getLocation().clone();
-
+        
         if (toCoord(location).equals(coord)) {
           hologram.spawn();
           if (hologram.isSpawned()) {
@@ -126,52 +126,53 @@ public class HologramListeners implements Listener {
             respawnAllFromCoord(coord);
             return;
           }
-
+          
           this.toRespawn.put(coord, hologram);
         }
       }
     }
   }
-
+  
   private void respawnAllFromCoord(ChunkCoord coord) {
     for (ChunkCoord c : toRespawn.asMap().keySet()) {
       if (c.equals(coord)) {
         for (Hologram hologram : toRespawn.get(c)) {
           hologram.spawn();
         }
-
+        
         toRespawn.asMap().remove(c);
       }
     }
   }
-
+  
   private void storeForRespawn(Hologram hologram) {
     toRespawn.put(toCoord(hologram.getLocation()), hologram);
   }
-
+  
   private ChunkCoord toCoord(Chunk chunk) {
     return new ChunkCoord(chunk);
   }
-
+  
   private ChunkCoord toCoord(Location location) {
     return new ChunkCoord(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4);
   }
-
+  
   private static class ChunkCoord {
-
-    private String world;
-    private int x, z;
-
+    
+    private final String world;
+    private final int x;
+    private final int z;
+    
     private ChunkCoord(Chunk chunk) {
       this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
-
+    
     private ChunkCoord(String world, int x, int z) {
       this.world = world;
       this.x = x;
       this.z = z;
     }
-
+    
     public boolean equals(Object obj) {
       if (!(obj instanceof ChunkCoord)) {
         return false;
@@ -179,7 +180,7 @@ public class HologramListeners implements Listener {
       if (this == obj) {
         return true;
       }
-
+      
       ChunkCoord other = (ChunkCoord) obj;
       if (world == null) {
         if (other.world != null) {
@@ -188,7 +189,7 @@ public class HologramListeners implements Listener {
       } else if (!world.equals(other.world)) {
         return false;
       }
-
+      
       return this.x == other.x && this.z == other.z;
     }
   }

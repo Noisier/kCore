@@ -5,15 +5,19 @@ import dev.slickcollections.kiwizin.reflection.acessors.FieldAccessor;
 import net.minecraft.server.v1_8_R3.*;
 
 public class PlayerPathfinder {
-
+  
+  private static final FieldAccessor<Object> E = Accessors.getField(PathPoint.class, "e");
+  private static final FieldAccessor<Object> F = Accessors.getField(PathPoint.class, "f");
+  private static final FieldAccessor<Object> G = Accessors.getField(PathPoint.class, "g");
+  private static final FieldAccessor<Object> H = Accessors.getField(PathPoint.class, "h");
   private final Path a = new Path();
   private final PathPoint[] b = new PathPoint[32];
   private final PlayerPathfinderNormal c;
-
+  
   public PlayerPathfinder(PlayerPathfinderNormal paramPathfinderAbstract) {
     this.c = paramPathfinderAbstract;
   }
-
+  
   private PathEntity a(Entity paramEntity, PathPoint paramPathPoint1, PathPoint paramPathPoint2, float paramFloat) {
     float newF;
     try {
@@ -24,10 +28,10 @@ public class PlayerPathfinder {
     } catch (IllegalArgumentException e1) {
       e1.printStackTrace();
     }
-
+    
     this.a.a();
     this.a.a(paramPathPoint1);
-
+    
     PathPoint localObject = paramPathPoint1;
     while (!this.a.e()) {
       PathPoint localPathPoint1 = this.a.c();
@@ -38,7 +42,7 @@ public class PlayerPathfinder {
         localObject = localPathPoint1;
       }
       localPathPoint1.i = true;
-
+      
       int i = this.c.a(this.b, paramEntity, localPathPoint1, paramPathPoint2, paramFloat);
       for (int j = 0; j < i; j++) {
         PathPoint localPathPoint2 = this.b[j];
@@ -67,7 +71,7 @@ public class PlayerPathfinder {
     }
     return a(localObject);
   }
-
+  
   public PathEntity a(IBlockAccess paramIBlockAccess, Entity paramEntity, BlockPosition paramBlockPosition, float paramFloat) {
     return a(paramIBlockAccess, paramEntity, paramBlockPosition.getX() + 0.5F, paramBlockPosition.getY() + 0.5F, paramBlockPosition.getZ() + 0.5F, paramFloat);
   }
@@ -77,9 +81,9 @@ public class PlayerPathfinder {
     this.c.a(paramIBlockAccess, paramEntity);
     PathPoint localPathPoint1 = this.c.a(paramEntity);
     PathPoint localPathPoint2 = this.c.a(paramEntity, paramDouble1, paramDouble2, paramDouble3);
-
+    
     PathEntity localPathEntity = a(paramEntity, localPathPoint1, localPathPoint2, paramFloat);
-
+    
     this.c.a();
     return localPathEntity;
   }
@@ -112,9 +116,4 @@ public class PlayerPathfinder {
     }
     return new PathEntity(arrayOfPathPoint);
   }
-
-  private static final FieldAccessor<Object> E = Accessors.getField(PathPoint.class, "e");
-  private static final FieldAccessor<Object> F = Accessors.getField(PathPoint.class, "f");
-  private static final FieldAccessor<Object> G = Accessors.getField(PathPoint.class, "g");
-  private static final FieldAccessor<Object> H = Accessors.getField(PathPoint.class, "h");
 }

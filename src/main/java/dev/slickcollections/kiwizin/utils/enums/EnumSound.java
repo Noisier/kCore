@@ -6,7 +6,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public enum EnumSound {
-
+  
   AMBIENCE_CAVE("AMBIENCE_CAVE", "AMBIENT_CAVE"),
   AMBIENCE_RAIN("AMBIENCE_RAIN", "WEATHER_RAIN"),
   AMBIENCE_THUNDER("AMBIENCE_THUNDER", "ENTITY_LIGHTNING_THUNDER"),
@@ -190,27 +190,27 @@ public enum EnumSound {
   VILLAGER_IDLE("VILLAGER_IDLE", "ENTITY_VILLAGER_AMBIENT"),
   VILLAGER_NO("VILLAGER_NO", "ENTITY_VILLAGER_NO"),
   VILLAGER_YES("VILLAGER_YES", "ENTITY_VILLAGER_YES");
-
-  private String oldSound;
-  private String newSound;
-
+  
+  private final String oldSound;
+  private final String newSound;
+  
   EnumSound(String oldSound, String newSound) {
     this.oldSound = oldSound;
     this.newSound = newSound;
   }
-
+  
   public void play(Player player, float f1, float f2) {
     play(player, player.getLocation(), f1, f2);
   }
-
+  
   public void play(Player player, Location location, float f1, float f2) {
     player.playSound(location, this.getSound(), f1, f2);
   }
-
+  
   public void play(World world, Location location, float f1, float f2) {
     world.playSound(location, this.getSound(), f1, f2);
   }
-
+  
   public Sound getSound() {
     Sound localSound;
     try {
@@ -218,7 +218,7 @@ public enum EnumSound {
     } catch (Exception e) {
       localSound = Sound.valueOf(this.newSound);
     }
-
+    
     return localSound;
   }
 }
