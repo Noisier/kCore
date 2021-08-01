@@ -20,8 +20,7 @@ public abstract class KScoreboard {
   
   private VirtualTeam[] teams = new VirtualTeam[15];
   
-  public KScoreboard() {
-  }
+  public KScoreboard() {}
   
   public void scroll() {
     if (this.scroller != null) {
@@ -29,8 +28,7 @@ public abstract class KScoreboard {
     }
   }
   
-  public void update() {
-  }
+  public void update() {}
   
   public void updateHealth() {
     if ((this.healthTab || this.health) && this.scoreboard != null) {
@@ -207,7 +205,7 @@ public abstract class KScoreboard {
   }
   
   public String getObjectiveName() {
-    return "mScoreboard";
+    return "kScoreboard";
   }
   
   public Scoreboard getScoreboard() {

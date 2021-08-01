@@ -6,7 +6,7 @@
 
     <groupId>dev.slickcollections.kiwizin</groupId>
     <artifactId>kCore</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
 
     <properties>
         <main-bukkit>dev.slickcollections.kiwizin.Core</main-bukkit>
@@ -105,8 +105,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <outputFile>D:\Database\KiwiCollections\${project.artifactId}.jar</outputFile>
-                            <!-- <outputFile>D:\Database\Servidores\2mx\plugins\${project.artifactId}.jar</outputFile> -->
                             <artifactSet>
                                 <excludes>
                                     <exclude>org.spigotmc:*</exclude>

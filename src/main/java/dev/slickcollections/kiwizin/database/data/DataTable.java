@@ -17,6 +17,7 @@ public abstract class DataTable {
     TABLES.add(new CoreTable());
     TABLES.add(new SkyWarsTable());
     TABLES.add(new BedWarsTable());
+    TABLES.add(new BuildBattleTable());
     TABLES.add(new TheBridgeTable());
     TABLES.add(new MurderTable());
   }

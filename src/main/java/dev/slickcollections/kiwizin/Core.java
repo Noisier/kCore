@@ -50,14 +50,14 @@ import java.util.logging.Level;
 public class Core extends KPlugin {
   
   public static final List<String> warnings = new ArrayList<>();
-  public static final List<String> minigames = Arrays.asList("Sky Wars", "The Bridge", "Murder", "Bed Wars");
+  public static final List<String> minigames = Arrays.asList("Sky Wars", "The Bridge", "Murder", "Bed Wars", "Build Battle");
+  
   public static boolean validInit;
   public static String minigame = "";
+  
   /**
    * Copyright (c) 2020-2021 SliceCollections
-   * <p>
    * Uma edição de um plugin chamado mCore.
-   * <p>
    * Criador: https://github.com/maxteer
    * Source Code (mCore): https://github.com/slicecollections/mCore
    */
@@ -122,8 +122,7 @@ public class Core extends KPlugin {
   }
   
   @Override
-  public void load() {
-  }
+  public void load() {}
   
   @Override
   public void enable() {
@@ -164,7 +163,6 @@ public class Core extends KPlugin {
       System.exit(0);
       return;
     }
-    
     
     // Remover /reload
     try {

@@ -102,6 +102,14 @@ public class KCoreExpansion extends PlaceholderExpansion {
       } else if (value.equals("coins")) {
         return StringUtils.formatNumber(profile.getCoins(table));
       }
+    } else if (params.startsWith("BuildBattle_")) {
+      String table = "kCoreBuildBattle";
+      String value = params.replace("BuildBattle_", "");
+      if (value.equals("wins") || value.equals("games") || value.equals("points")) {
+        return StringUtils.formatNumber(profile.getStats(table, value));
+      } else if (value.equals("coins")) {
+        return StringUtils.formatNumber(profile.getCoins(table));
+      }
     } else if (params.startsWith("Murder_")) {
       String table = "kCoreMurder";
       String value = params.replace("Murder_", "");
